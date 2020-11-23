@@ -5,6 +5,11 @@ type Type string
 var keywords = map[string]Type {
 	"fn": FUNCTION,
 	"let": LET,
+	"true": TRUE,
+	"false": FALSE,
+	"if": IF,
+	"else": ELSE,
+	"return": RETURN,
 }
 
 func LookupIdent(ident string) Type {
@@ -25,6 +30,15 @@ const (
 	// 演算子
 	ASSIGN = "="
 	PLUS   = "+"
+	MINUS  = "-"
+	BANG = "!"
+	ASTERISK = "*"
+	SLASH = "/"
+
+	EQ = "=="
+	NOT_EQ = "!="
+	LT = "<"
+	GT = ">"
 
 	// デリミタ
 	COMMA     = ","
@@ -38,6 +52,11 @@ const (
 	// キーワード
 	FUNCTION = "FUNCTION"
 	LET      = "LET"
+	TRUE = "TRUE"
+	FALSE = "FALSE"
+	IF = "IF"
+	ELSE = "ELSE"
+	RETURN = "RETURN"
 )
 
 type Token struct {

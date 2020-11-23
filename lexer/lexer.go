@@ -13,7 +13,7 @@ type lexer struct {
 	ch           byte // 現在検査中の文字
 }
 
-func New(input string) *lexer {
+func New(input string) Lexer {
 	l := &lexer{input: input}
 	l.readChar()
 	return l

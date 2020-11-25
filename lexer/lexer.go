@@ -121,12 +121,12 @@ func (l *lexer) NextToken() token.Token {
 	default:
 		if isLetter(l.ch) {
 			tok.Literal = l.readIdentifier()
-			tok.Type =  token.LookupIdent(tok.Literal)
+			tok.Type = token.LookupIdent(tok.Literal)
 			return tok
 		} else if isDigit(l.ch) {
-		 	tok.Literal = l.readNumber()
-		 	tok.Type = token.INT
-		 	return tok
+			tok.Literal = l.readNumber()
+			tok.Type = token.INT
+			return tok
 		} else {
 			tok = token.NewToken(token.ILLEGAL, l.ch)
 		}

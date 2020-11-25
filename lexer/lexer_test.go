@@ -2,6 +2,7 @@ package lexer
 
 import (
 	"github.com/care0717/monkey-interpreter/token"
+	"github.com/google/go-cmp/cmp"
 	"testing"
 )
 
@@ -148,11 +149,9 @@ let result = add(five, ten);
 		l := New(tt.input)
 		for i, e := range tt.expected {
 			tok := l.NextToken()
-			if tok.Type != e.Type {
-				t.Errorf("test[%d] = tokentype wrong. expected=%q, got=%q", i, e.Type, tok.Type)
-			}
-			if tok.Literal != e.Literal {
-				t.Errorf("test[%d] = literal wrong. expected=%q, got=%q", i, e.Literal, tok.Literal)
+
+			if !cmp.Equal(tok, e) {
+				t.Errorf("test[%d] = tokentype wrong. expected=%v, got=%v", i, e, tok)
 			}
 		}
 	}

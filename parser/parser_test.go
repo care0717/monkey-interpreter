@@ -120,3 +120,73 @@ func testLetStatement(s ast.Statement, expect ast.LetStatement) error {
 
 	return nil
 }
+
+func TestReturnStatement(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected []ast.ReturnStatement
+	}{
+		{
+			input: `
+return 5;
+return 10;
+return 838383;
+`,
+			expected: []ast.ReturnStatement{
+				{
+					Token: token.Token{
+						Type:    token.RETURN,
+						Literal: "return",
+					},
+				},
+				{
+					Token: token.Token{
+						Type:    token.RETURN,
+						Literal: "return",
+					},
+				},
+				{
+					Token: token.Token{
+						Type:    token.RETURN,
+						Literal: "return",
+					},
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		l := lexer.New(tt.input)
+		p := New(l)
+
+		program := p.ParseProgram()
+		checkParserErrors(t, p)
+		if program == nil {
+			t.Errorf("ParseProgram() returned nil")
+			continue
+		}
+
+		if len(program.Statements) != len(tt.expected) {
+			t.Errorf("program.Statements does not contain %d stratements. got=%d", len(tt.expected), len(program.Statements))
+			continue
+		}
+		for i := 0; i < len(program.Statements); i++ {
+			s := program.Statements[i]
+			if err := testReturnStatement(s, tt.expected[i]); err != nil {
+				t.Error(err)
+				break
+			}
+		}
+	}
+}
+
+func testReturnStatement(s ast.Statement, expect ast.ReturnStatement) error {
+	returnStmt, ok := s.(*ast.ReturnStatement)
+	if !ok {
+		return fmt.Errorf("s not *ast.ReturnStatement, got=%T", s)
+	}
+
+	if returnStmt.TokenLiteral() != expect.TokenLiteral() {
+		return fmt.Errorf("returnStmt.TokenLiteral() not %s, got=%s", expect.TokenLiteral(), returnStmt.TokenLiteral())
+	}
+	return nil
+}

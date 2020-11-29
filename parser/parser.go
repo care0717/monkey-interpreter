@@ -12,7 +12,7 @@ type Parser struct {
 
 	curToken  token.Token
 	peekToken token.Token
-	errors []string
+	errors    []string
 }
 
 func (p *Parser) nextToken() {
@@ -22,7 +22,7 @@ func (p *Parser) nextToken() {
 
 func New(l lexer.Lexer) *Parser {
 	p := &Parser{
-		l: l,
+		l:      l,
 		errors: []string{},
 	}
 	p.nextToken()
@@ -118,4 +118,3 @@ func (p *Parser) peekError(expectedType token.Type) {
 	msg := fmt.Sprintf("expected next token to be %s, got %s", expectedType, p.peekToken.Type)
 	p.errors = append(p.errors, msg)
 }
-

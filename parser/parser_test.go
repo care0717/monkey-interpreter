@@ -190,3 +190,64 @@ func testReturnStatement(s ast.Statement, expect ast.ReturnStatement) error {
 	}
 	return nil
 }
+
+func TestIdentifierExpression(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected []ast.Identifier
+	}{
+		{
+			input: "foobar;",
+			expected: []ast.Identifier{
+				{
+					Token: token.Token{
+						Type:    token.IDENT,
+						Literal: "foobar",
+					},
+					Value: "foobar",
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		l := lexer.New(tt.input)
+		p := New(l)
+
+		program := p.ParseProgram()
+		checkParserErrors(t, p)
+		if program == nil {
+			t.Errorf("ParseProgram() returned nil")
+			continue
+		}
+
+		if len(program.Statements) != len(tt.expected) {
+			t.Errorf("program.Statements does not contain %d stratements. got=%d", len(tt.expected), len(program.Statements))
+			continue
+		}
+		for i := 0; i < len(program.Statements); i++ {
+			s := program.Statements[i]
+			if err := testIdentifierExpression(s, tt.expected[i]); err != nil {
+				t.Error(err)
+				break
+			}
+		}
+	}
+}
+
+func testIdentifierExpression(s ast.Statement, expect ast.Identifier) error {
+	stmt, ok := s.(*ast.ExpressionStatement)
+	if !ok {
+		return fmt.Errorf("s not *ast.ExpressionStatement, got=%T", s)
+	}
+	ident, ok := stmt.Expression.(*ast.Identifier)
+	if !ok {
+		return fmt.Errorf("s not *ast.Identifier, got=%T", stmt.Expression)
+	}
+	if ident.Value != expect.Value {
+		return fmt.Errorf("ident.Value not %s, got=%s", expect.Value, ident.Value)
+	}
+	if ident.TokenLiteral() != expect.TokenLiteral() {
+		return fmt.Errorf("ident.TokenLiteral() not %s, got=%s", expect.TokenLiteral(), ident.TokenLiteral())
+	}
+	return nil
+}

@@ -251,3 +251,64 @@ func testIdentifierExpression(s ast.Statement, expect ast.Identifier) error {
 	}
 	return nil
 }
+
+func TestIntegerLiteral(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected []ast.IntegerLiteral
+	}{
+		{
+			input: "55;",
+			expected: []ast.IntegerLiteral{
+				{
+					Token: token.Token{
+						Type:    token.IDENT,
+						Literal: "55",
+					},
+					Value: 55,
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		l := lexer.New(tt.input)
+		p := New(l)
+
+		program := p.ParseProgram()
+		checkParserErrors(t, p)
+		if program == nil {
+			t.Errorf("ParseProgram() returned nil")
+			continue
+		}
+
+		if len(program.Statements) != len(tt.expected) {
+			t.Errorf("program.Statements does not contain %d stratements. got=%d", len(tt.expected), len(program.Statements))
+			continue
+		}
+		for i := 0; i < len(program.Statements); i++ {
+			s := program.Statements[i]
+			if err := testIntegerLiteral(s, tt.expected[i]); err != nil {
+				t.Error(err)
+				break
+			}
+		}
+	}
+}
+
+func testIntegerLiteral(s ast.Statement, expect ast.IntegerLiteral) error {
+	stmt, ok := s.(*ast.ExpressionStatement)
+	if !ok {
+		return fmt.Errorf("s not *ast.ExpressionStatement, got=%T", s)
+	}
+	literal, ok := stmt.Expression.(*ast.IntegerLiteral)
+	if !ok {
+		return fmt.Errorf("s not *ast.IntegerLiteral, got=%T", stmt.Expression)
+	}
+	if literal.Value != expect.Value {
+		return fmt.Errorf("literal.Value not %d, got=%d", expect.Value, literal.Value)
+	}
+	if literal.TokenLiteral() != expect.TokenLiteral() {
+		return fmt.Errorf("literal.TokenLiteral() not %s, got=%s", expect.TokenLiteral(), literal.TokenLiteral())
+	}
+	return nil
+}

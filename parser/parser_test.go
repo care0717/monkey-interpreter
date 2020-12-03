@@ -262,7 +262,7 @@ func TestIntegerLiteral(t *testing.T) {
 			expected: []ast.IntegerLiteral{
 				{
 					Token: token.Token{
-						Type:    token.IDENT,
+						Type:    token.INT,
 						Literal: "55",
 					},
 					Value: 55,
@@ -310,5 +310,91 @@ func testIntegerLiteral(s ast.Statement, expect ast.IntegerLiteral) error {
 	if literal.TokenLiteral() != expect.TokenLiteral() {
 		return fmt.Errorf("literal.TokenLiteral() not %s, got=%s", expect.TokenLiteral(), literal.TokenLiteral())
 	}
+	return nil
+}
+
+func TestParsingPrefixExpressions(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected []ast.PrefixExpression
+	}{
+		{
+			input: "!5;",
+			expected: []ast.PrefixExpression{
+				{
+					Token: token.Token{
+						Type:    token.BANG,
+						Literal: "!",
+					},
+					Operator: "!",
+					Right: &ast.IntegerLiteral{
+						Token: token.Token{
+							Type:    token.INT,
+							Literal: "5",
+						},
+						Value: 5,
+					},
+				},
+			},
+		},
+		{
+			input: "-15;",
+			expected: []ast.PrefixExpression{
+				{
+					Token: token.Token{
+						Type:    token.MINUS,
+						Literal: "-",
+					},
+					Operator: "-",
+					Right: &ast.IntegerLiteral{
+						Token: token.Token{
+							Type:    token.INT,
+							Literal: "15",
+						},
+						Value: 15,
+					},
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		l := lexer.New(tt.input)
+		p := New(l)
+
+		program := p.ParseProgram()
+		checkParserErrors(t, p)
+		if program == nil {
+			t.Errorf("ParseProgram() returned nil")
+			continue
+		}
+
+		if len(program.Statements) != len(tt.expected) {
+			t.Errorf("program.Statements does not contain %d stratements. got=%d", len(tt.expected), len(program.Statements))
+			continue
+		}
+		for i := 0; i < len(program.Statements); i++ {
+			s := program.Statements[i]
+			if err := testPrefixExpression(s, tt.expected[i]); err != nil {
+				t.Error(err)
+				break
+			}
+		}
+	}
+}
+
+func testPrefixExpression(s ast.Statement, expect ast.PrefixExpression) error {
+	stmt, ok := s.(*ast.ExpressionStatement)
+	if !ok {
+		return fmt.Errorf("s not *ast.ExpressionStatement, got=%T", s)
+	}
+	exp, ok := stmt.Expression.(*ast.PrefixExpression)
+	if !ok {
+		return fmt.Errorf("s not *ast.PrefixExpression, got=%T", stmt.Expression)
+	}
+
+	if !cmp.Equal(exp, &expect) {
+		return fmt.Errorf("PrefixExpression not %v, got=%v", expect, exp)
+	}
+
 	return nil
 }

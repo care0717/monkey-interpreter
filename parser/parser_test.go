@@ -398,3 +398,287 @@ func testPrefixExpression(s ast.Statement, expect ast.PrefixExpression) error {
 
 	return nil
 }
+
+func TestParsingInfixExpression(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected []ast.InfixExpression
+	}{
+		{
+			input: "2 + 5;",
+			expected: []ast.InfixExpression{
+				{
+					Token: token.Token{
+						Type:    token.PLUS,
+						Literal: "+",
+					},
+					Operator: "+",
+					Left: &ast.IntegerLiteral{
+						Token: token.Token{
+							Type:    token.INT,
+							Literal: "2",
+						},
+						Value: 2,
+					},
+					Right: &ast.IntegerLiteral{
+						Token: token.Token{
+							Type:    token.INT,
+							Literal: "5",
+						},
+						Value: 5,
+					},
+				},
+			},
+		},
+		{
+			input: "5 - 2;",
+			expected: []ast.InfixExpression{
+				{
+					Token: token.Token{
+						Type:    token.MINUS,
+						Literal: "-",
+					},
+					Operator: "-",
+					Left: &ast.IntegerLiteral{
+						Token: token.Token{
+							Type:    token.INT,
+							Literal: "5",
+						},
+						Value: 5,
+					},
+					Right: &ast.IntegerLiteral{
+						Token: token.Token{
+							Type:    token.INT,
+							Literal: "2",
+						},
+						Value: 2,
+					},
+				},
+			},
+		},
+		{
+			input: "5 - 2;",
+			expected: []ast.InfixExpression{
+				{
+					Token: token.Token{
+						Type:    token.MINUS,
+						Literal: "-",
+					},
+					Operator: "-",
+					Left: &ast.IntegerLiteral{
+						Token: token.Token{
+							Type:    token.INT,
+							Literal: "5",
+						},
+						Value: 5,
+					},
+					Right: &ast.IntegerLiteral{
+						Token: token.Token{
+							Type:    token.INT,
+							Literal: "2",
+						},
+						Value: 2,
+					},
+				},
+			},
+		},
+		{
+			input: "5 * 2;",
+			expected: []ast.InfixExpression{
+				{
+					Token: token.Token{
+						Type:    token.ASTERISK,
+						Literal: "*",
+					},
+					Operator: "*",
+					Left: &ast.IntegerLiteral{
+						Token: token.Token{
+							Type:    token.INT,
+							Literal: "5",
+						},
+						Value: 5,
+					},
+					Right: &ast.IntegerLiteral{
+						Token: token.Token{
+							Type:    token.INT,
+							Literal: "2",
+						},
+						Value: 2,
+					},
+				},
+			},
+		},
+		{
+			input: "2 / 5;",
+			expected: []ast.InfixExpression{
+				{
+					Token: token.Token{
+						Type:    token.SLASH,
+						Literal: "/",
+					},
+					Operator: "/",
+					Left: &ast.IntegerLiteral{
+						Token: token.Token{
+							Type:    token.INT,
+							Literal: "2",
+						},
+						Value: 2,
+					},
+					Right: &ast.IntegerLiteral{
+						Token: token.Token{
+							Type:    token.INT,
+							Literal: "5",
+						},
+						Value: 5,
+					},
+				},
+			},
+		},
+		{
+			input: "5 > 2;",
+			expected: []ast.InfixExpression{
+				{
+					Token: token.Token{
+						Type:    token.GT,
+						Literal: ">",
+					},
+					Operator: ">",
+					Left: &ast.IntegerLiteral{
+						Token: token.Token{
+							Type:    token.INT,
+							Literal: "5",
+						},
+						Value: 5,
+					},
+					Right: &ast.IntegerLiteral{
+						Token: token.Token{
+							Type:    token.INT,
+							Literal: "2",
+						},
+						Value: 2,
+					},
+				},
+			},
+		},
+		{
+			input: "5 < 2;",
+			expected: []ast.InfixExpression{
+				{
+					Token: token.Token{
+						Type:    token.LT,
+						Literal: "<",
+					},
+					Operator: "<",
+					Left: &ast.IntegerLiteral{
+						Token: token.Token{
+							Type:    token.INT,
+							Literal: "5",
+						},
+						Value: 5,
+					},
+					Right: &ast.IntegerLiteral{
+						Token: token.Token{
+							Type:    token.INT,
+							Literal: "2",
+						},
+						Value: 2,
+					},
+				},
+			},
+		},
+		{
+			input: "5 == 2;",
+			expected: []ast.InfixExpression{
+				{
+					Token: token.Token{
+						Type:    token.EQ,
+						Literal: "==",
+					},
+					Operator: "==",
+					Left: &ast.IntegerLiteral{
+						Token: token.Token{
+							Type:    token.INT,
+							Literal: "5",
+						},
+						Value: 5,
+					},
+					Right: &ast.IntegerLiteral{
+						Token: token.Token{
+							Type:    token.INT,
+							Literal: "2",
+						},
+						Value: 2,
+					},
+				},
+			},
+		},
+		{
+			input: "5 != 2;",
+			expected: []ast.InfixExpression{
+				{
+					Token: token.Token{
+						Type:    token.NOT_EQ,
+						Literal: "!=",
+					},
+					Operator: "!=",
+					Left: &ast.IntegerLiteral{
+						Token: token.Token{
+							Type:    token.INT,
+							Literal: "5",
+						},
+						Value: 5,
+					},
+					Right: &ast.IntegerLiteral{
+						Token: token.Token{
+							Type:    token.INT,
+							Literal: "2",
+						},
+						Value: 2,
+					},
+				},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		l := lexer.New(tt.input)
+		p := New(l)
+
+		program := p.ParseProgram()
+		checkParserErrors(t, p)
+		if program == nil {
+			t.Errorf("ParseProgram() returned nil")
+			continue
+		}
+
+		if len(program.Statements) != len(tt.expected) {
+			t.Errorf("program.Statements does not contain %d stratements. got=%d", len(tt.expected), len(program.Statements))
+			continue
+		}
+		for i := 0; i < len(program.Statements); i++ {
+			s := program.Statements[i]
+			if err := testInfixExpression(s, tt.expected[i]); err != nil {
+				t.Error(err)
+				break
+			}
+		}
+	}
+}
+
+func testInfixExpression(statement ast.Statement, expect ast.InfixExpression) interface{} {
+	stmt, ok := statement.(*ast.ExpressionStatement)
+	if !ok {
+		return fmt.Errorf("s not *ast.ExpressionStatement, got=%T", statement)
+	}
+	exp, ok := stmt.Expression.(*ast.InfixExpression)
+	if !ok {
+		return fmt.Errorf("s not *ast.PrefixExpression, got=%T", stmt.Expression)
+	}
+
+	if !cmp.Equal(exp, &expect) {
+		return fmt.Errorf("PrefixExpression not %v, got=%v", expect, exp)
+	}
+
+	return nil
+
+}

@@ -638,6 +638,84 @@ func TestParsingInfixExpression(t *testing.T) {
 				},
 			},
 		},
+		{
+			input: "true == true;",
+			expected: []ast.InfixExpression{
+				{
+					Token: token.Token{
+						Type:    token.EQ,
+						Literal: "==",
+					},
+					Operator: "==",
+					Left: &ast.Boolean{
+						Token: token.Token{
+							Type:    token.TRUE,
+							Literal: "true",
+						},
+						Value: true,
+					},
+					Right: &ast.Boolean{
+						Token: token.Token{
+							Type:    token.TRUE,
+							Literal: "true",
+						},
+						Value: true,
+					},
+				},
+			},
+		},
+		{
+			input: "true == false;",
+			expected: []ast.InfixExpression{
+				{
+					Token: token.Token{
+						Type:    token.EQ,
+						Literal: "==",
+					},
+					Operator: "==",
+					Left: &ast.Boolean{
+						Token: token.Token{
+							Type:    token.TRUE,
+							Literal: "true",
+						},
+						Value: true,
+					},
+					Right: &ast.Boolean{
+						Token: token.Token{
+							Type:    token.FALSE,
+							Literal: "false",
+						},
+						Value: false,
+					},
+				},
+			},
+		},
+		{
+			input: "false != false;",
+			expected: []ast.InfixExpression{
+				{
+					Token: token.Token{
+						Type:    token.NOT_EQ,
+						Literal: "!=",
+					},
+					Operator: "!=",
+					Left: &ast.Boolean{
+						Token: token.Token{
+							Type:    token.FALSE,
+							Literal: "false",
+						},
+						Value: false,
+					},
+					Right: &ast.Boolean{
+						Token: token.Token{
+							Type:    token.FALSE,
+							Literal: "false",
+						},
+						Value: false,
+					},
+				},
+			},
+		},
 	}
 
 	for _, tt := range tests {
@@ -732,6 +810,22 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 		{
 			"3 + 4 * 5 == 3 * 1 + 4 * 5",
 			"((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))",
+		},
+		{
+			"true",
+			"true",
+		},
+		{
+			"false",
+			"false",
+		},
+		{
+			"3 > 5 == false",
+			"((3 > 5) == false)",
+		},
+		{
+			"3 < 5 == true",
+			"((3 < 5) == true)",
 		},
 	}
 	for _, tt := range tests {

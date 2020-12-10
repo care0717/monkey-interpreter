@@ -107,7 +107,7 @@ func checkParserErrors(t *testing.T, p *Parser) {
 func testLetStatement(s ast.Statement, expect ast.LetStatement) error {
 	letStmt, ok := s.(*ast.LetStatement)
 	if !ok {
-		return fmt.Errorf("s not *ast.LetStatement, got=%T", s)
+		return fmt.Errorf("s not *%T, got=%T", expect, s)
 	}
 
 	if letStmt.TokenLiteral() != expect.TokenLiteral() {
@@ -182,7 +182,7 @@ return 838383;
 func testReturnStatement(s ast.Statement, expect ast.ReturnStatement) error {
 	returnStmt, ok := s.(*ast.ReturnStatement)
 	if !ok {
-		return fmt.Errorf("s not *ast.ReturnStatement, got=%T", s)
+		return fmt.Errorf("s not *%T, got=%T", expect, s)
 	}
 
 	if returnStmt.TokenLiteral() != expect.TokenLiteral() {
@@ -241,7 +241,7 @@ func testIdentifierExpression(s ast.Statement, expect ast.Identifier) error {
 	}
 	ident, ok := stmt.Expression.(*ast.Identifier)
 	if !ok {
-		return fmt.Errorf("s not *ast.Identifier, got=%T", stmt.Expression)
+		return fmt.Errorf("s not *%T, got=%T", expect, stmt.Expression)
 	}
 	if ident.Value != expect.Value {
 		return fmt.Errorf("ident.Value not %s, got=%s", expect.Value, ident.Value)
@@ -302,7 +302,7 @@ func testIntegerLiteral(s ast.Statement, expect ast.IntegerLiteral) error {
 	}
 	literal, ok := stmt.Expression.(*ast.IntegerLiteral)
 	if !ok {
-		return fmt.Errorf("s not *ast.IntegerLiteral, got=%T", stmt.Expression)
+		return fmt.Errorf("s not *ast.%T, got=%T", expect, stmt.Expression)
 	}
 	if literal.Value != expect.Value {
 		return fmt.Errorf("literal.Value not %d, got=%d", expect.Value, literal.Value)
@@ -389,11 +389,11 @@ func testPrefixExpression(s ast.Statement, expect ast.PrefixExpression) error {
 	}
 	exp, ok := stmt.Expression.(*ast.PrefixExpression)
 	if !ok {
-		return fmt.Errorf("s not *ast.PrefixExpression, got=%T", stmt.Expression)
+		return fmt.Errorf("s not *%T, got=%T", expect, stmt.Expression)
 	}
 
 	if !cmp.Equal(exp, &expect) {
-		return fmt.Errorf("PrefixExpression not %v, got=%v", expect, exp)
+		return fmt.Errorf("%T diff %s", expect, cmp.Diff(&expect, exp))
 	}
 
 	return nil
@@ -750,11 +750,11 @@ func testInfixExpression(statement ast.Statement, expect ast.InfixExpression) in
 	}
 	exp, ok := stmt.Expression.(*ast.InfixExpression)
 	if !ok {
-		return fmt.Errorf("s not *ast.PrefixExpression, got=%T", stmt.Expression)
+		return fmt.Errorf("s not *%T, got=%T", expect, stmt.Expression)
 	}
 
 	if !cmp.Equal(exp, &expect) {
-		return fmt.Errorf("PrefixExpression not %v, got=%v", expect, exp)
+		return fmt.Errorf("%T diff %s", expect, cmp.Diff(&expect, exp))
 	}
 
 	return nil
@@ -864,4 +864,174 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 			t.Errorf("expected=%q, but got=%q", tt.expected, actual)
 		}
 	}
+}
+
+func TestIfExpression(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected []ast.IfExpression
+	}{
+		{
+			input: `if (x < y) { x }`,
+			expected: []ast.IfExpression{
+				{
+					Token: token.Token{
+						Type:    token.IF,
+						Literal: "if",
+					},
+					Condition: &ast.InfixExpression{
+						Token: token.Token{
+							Type:    token.LT,
+							Literal: "<",
+						},
+						Operator: "<",
+						Left: &ast.Identifier{
+							Token: token.Token{
+								Type:    token.IDENT,
+								Literal: "x",
+							},
+							Value: "x",
+						},
+						Right: &ast.Identifier{
+							Token: token.Token{
+								Type:    token.IDENT,
+								Literal: "y",
+							},
+							Value: "y",
+						},
+					},
+					Consequence: &ast.BlockStatement{
+						Token: token.Token{
+							Type:    token.LBRACE,
+							Literal: "{",
+						},
+						Statements: []ast.Statement{
+							&ast.ExpressionStatement{
+								Token: token.Token{Type: token.IDENT,
+									Literal: "x"},
+								Expression: &ast.Identifier{
+									Token: token.Token{
+										Type:    token.IDENT,
+										Literal: "x",
+									},
+									Value: "x",
+								},
+							},
+						},
+					},
+					Alternative: nil,
+				},
+			},
+		},
+		{
+			input: `if (x > y) { y } else { x }`,
+			expected: []ast.IfExpression{
+				{
+					Token: token.Token{
+						Type:    token.IF,
+						Literal: "if",
+					},
+					Condition: &ast.InfixExpression{
+						Token: token.Token{
+							Type:    token.GT,
+							Literal: ">",
+						},
+						Operator: ">",
+						Left: &ast.Identifier{
+							Token: token.Token{
+								Type:    token.IDENT,
+								Literal: "x",
+							},
+							Value: "x",
+						},
+						Right: &ast.Identifier{
+							Token: token.Token{
+								Type:    token.IDENT,
+								Literal: "y",
+							},
+							Value: "y",
+						},
+					},
+					Consequence: &ast.BlockStatement{
+						Token: token.Token{
+							Type:    token.LBRACE,
+							Literal: "{",
+						},
+						Statements: []ast.Statement{
+							&ast.ExpressionStatement{
+								Token: token.Token{Type: token.IDENT,
+									Literal: "y"},
+								Expression: &ast.Identifier{
+									Token: token.Token{
+										Type:    token.IDENT,
+										Literal: "y",
+									},
+									Value: "y",
+								},
+							},
+						},
+					},
+					Alternative: &ast.BlockStatement{
+						Token: token.Token{
+							Type:    token.LBRACE,
+							Literal: "{",
+						},
+						Statements: []ast.Statement{
+							&ast.ExpressionStatement{
+								Token: token.Token{Type: token.IDENT,
+									Literal: "x"},
+								Expression: &ast.Identifier{
+									Token: token.Token{
+										Type:    token.IDENT,
+										Literal: "x",
+									},
+									Value: "x",
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		l := lexer.New(tt.input)
+		p := New(l)
+
+		program := p.ParseProgram()
+		checkParserErrors(t, p)
+		if program == nil {
+			t.Errorf("ParseProgram() returned nil")
+			continue
+		}
+		if len(program.Statements) != len(tt.expected) {
+			t.Errorf("program.Statements does not contain %d stratements. got=%d", len(tt.expected), len(program.Statements))
+			continue
+		}
+		for i := 0; i < len(program.Statements); i++ {
+			s := program.Statements[i]
+			if err := testIfExpression(s, tt.expected[i]); err != nil {
+				t.Error(err)
+				break
+			}
+		}
+	}
+}
+
+func testIfExpression(statement ast.Statement, expect ast.IfExpression) interface{} {
+	stmt, ok := statement.(*ast.ExpressionStatement)
+	if !ok {
+		return fmt.Errorf("s not *ast.ExpressionStatement, got=%T", statement)
+	}
+	exp, ok := stmt.Expression.(*ast.IfExpression)
+	if !ok {
+		return fmt.Errorf("statement not *%T, got=%T", expect, stmt.Expression)
+	}
+
+	if !cmp.Equal(exp, &expect) {
+		return fmt.Errorf("%T diff %s", expect, cmp.Diff(&expect, exp))
+	}
+
+	return nil
 }

@@ -239,15 +239,8 @@ func testIdentifierExpression(s ast.Statement, expect ast.Identifier) error {
 	if !ok {
 		return fmt.Errorf("s not *ast.ExpressionStatement, got=%T", s)
 	}
-	ident, ok := stmt.Expression.(*ast.Identifier)
-	if !ok {
-		return fmt.Errorf("s not *%T, got=%T", expect, stmt.Expression)
-	}
-	if ident.Value != expect.Value {
-		return fmt.Errorf("ident.Value not %s, got=%s", expect.Value, ident.Value)
-	}
-	if ident.TokenLiteral() != expect.TokenLiteral() {
-		return fmt.Errorf("ident.TokenLiteral() not %s, got=%s", expect.TokenLiteral(), ident.TokenLiteral())
+	if !cmp.Equal(stmt.Expression, &expect) {
+		return fmt.Errorf("%T diff %s", expect, cmp.Diff(&expect, stmt.Expression))
 	}
 	return nil
 }
@@ -300,15 +293,9 @@ func testIntegerLiteral(s ast.Statement, expect ast.IntegerLiteral) error {
 	if !ok {
 		return fmt.Errorf("s not *ast.ExpressionStatement, got=%T", s)
 	}
-	literal, ok := stmt.Expression.(*ast.IntegerLiteral)
-	if !ok {
-		return fmt.Errorf("s not *ast.%T, got=%T", expect, stmt.Expression)
-	}
-	if literal.Value != expect.Value {
-		return fmt.Errorf("literal.Value not %d, got=%d", expect.Value, literal.Value)
-	}
-	if literal.TokenLiteral() != expect.TokenLiteral() {
-		return fmt.Errorf("literal.TokenLiteral() not %s, got=%s", expect.TokenLiteral(), literal.TokenLiteral())
+
+	if !cmp.Equal(stmt.Expression, &expect) {
+		return fmt.Errorf("%T diff %s", expect, cmp.Diff(&expect, stmt.Expression))
 	}
 	return nil
 }
@@ -387,13 +374,9 @@ func testPrefixExpression(s ast.Statement, expect ast.PrefixExpression) error {
 	if !ok {
 		return fmt.Errorf("s not *ast.ExpressionStatement, got=%T", s)
 	}
-	exp, ok := stmt.Expression.(*ast.PrefixExpression)
-	if !ok {
-		return fmt.Errorf("s not *%T, got=%T", expect, stmt.Expression)
-	}
 
-	if !cmp.Equal(exp, &expect) {
-		return fmt.Errorf("%T diff %s", expect, cmp.Diff(&expect, exp))
+	if !cmp.Equal(stmt.Expression, &expect) {
+		return fmt.Errorf("%T diff %s", expect, cmp.Diff(&expect, stmt.Expression))
 	}
 
 	return nil
@@ -748,13 +731,9 @@ func testInfixExpression(statement ast.Statement, expect ast.InfixExpression) in
 	if !ok {
 		return fmt.Errorf("s not *ast.ExpressionStatement, got=%T", statement)
 	}
-	exp, ok := stmt.Expression.(*ast.InfixExpression)
-	if !ok {
-		return fmt.Errorf("s not *%T, got=%T", expect, stmt.Expression)
-	}
 
-	if !cmp.Equal(exp, &expect) {
-		return fmt.Errorf("%T diff %s", expect, cmp.Diff(&expect, exp))
+	if !cmp.Equal(stmt.Expression, &expect) {
+		return fmt.Errorf("%T diff %s", expect, cmp.Diff(&expect, stmt.Expression))
 	}
 
 	return nil
@@ -1024,13 +1003,9 @@ func testIfExpression(statement ast.Statement, expect ast.IfExpression) interfac
 	if !ok {
 		return fmt.Errorf("s not *ast.ExpressionStatement, got=%T", statement)
 	}
-	exp, ok := stmt.Expression.(*ast.IfExpression)
-	if !ok {
-		return fmt.Errorf("statement not *%T, got=%T", expect, stmt.Expression)
-	}
 
-	if !cmp.Equal(exp, &expect) {
-		return fmt.Errorf("%T diff %s", expect, cmp.Diff(&expect, exp))
+	if !cmp.Equal(stmt.Expression, &expect) {
+		return fmt.Errorf("%T diff %s", expect, cmp.Diff(&expect, stmt.Expression))
 	}
 
 	return nil

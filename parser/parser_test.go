@@ -101,11 +101,45 @@ func checkParserErrors(p *Parser) error {
 	}
 
 	var err error
-	err = multierr.Append(err, fmt.Errorf("parser had %d errors", len(errors)))
+	err = multierr.Append(err, fmt.Errorf("parser had %d errors\n", len(errors)))
 	for _, msg := range errors {
-		err = multierr.Append(err, fmt.Errorf("parser error: %q", msg))
+		err = multierr.Append(err, fmt.Errorf("parser error: %q\n", msg))
 	}
 	return err
+}
+
+func testExpressionProgram(p *Parser, expected []ast.Expression) error {
+	program := p.ParseProgram()
+	if err := checkParserErrors(p); err != nil {
+		return err
+	}
+	if program == nil {
+		return fmt.Errorf("ParseProgram() returned nil")
+	}
+	if len(program.Statements) != len(expected) {
+		return fmt.Errorf("program.Statements does not contain %d stratements. got=%d", len(expected), len(program.Statements))
+	}
+	var multiErr error
+	for i := 0; i < len(program.Statements); i++ {
+		s := program.Statements[i]
+		if err := testExpression(s, expected[i]); err != nil {
+			multiErr = multierr.Append(multiErr, err)
+			break
+		}
+	}
+	return multiErr
+}
+
+func testExpression(statement ast.Statement, expect ast.Expression) error {
+	stmt, ok := statement.(*ast.ExpressionStatement)
+	if !ok {
+		return fmt.Errorf("s not *ast.ExpressionStatement, got=%T", statement)
+	}
+
+	if !cmp.Equal(stmt.Expression, expect) {
+		return fmt.Errorf("%T diff %s", expect, cmp.Diff(expect, stmt.Expression))
+	}
+	return nil
 }
 
 func testLetStatement(s ast.Statement, expect ast.LetStatement) error {
@@ -674,6 +708,18 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 			"!(true == true)",
 			"(!(true == true))",
 		},
+		{
+			"a + add(b*c) + d",
+			"(a + (add((b * c)) + d))",
+		},
+		{
+			"add(a, 1, 2 * 3, 4 + 5, add(6, 7 * 8))",
+			"add(a, 1, (2 * 3), (4 + 5), add(6, (7 * 8)))",
+		},
+		{
+			"add(a + b + c * d / f + g)",
+			"add((a + (b + (((c * d) / f) + g))))",
+		},
 	}
 	for _, tt := range tests {
 		l := lexer.New(tt.input)
@@ -957,36 +1003,86 @@ func TestFunctionLiteralParsing(t *testing.T) {
 	}
 }
 
-func testExpressionProgram(p *Parser, expected []ast.Expression) error {
-	program := p.ParseProgram()
-	if err := checkParserErrors(p); err != nil {
-		return err
+func TestCallExpressionParsing(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected []ast.Expression
+	}{
+		{
+			input: `add(1, 2 * 3, 4 + 5);`,
+			expected: []ast.Expression{
+				&ast.CallExpression{
+					Token: token.Token{
+						Type:    token.LPAREN,
+						Literal: "(",
+					},
+					Function:  &ast.Identifier{
+						Token: token.Token{
+							Type:    token.IDENT,
+							Literal: "add",
+						},
+						Value: "add",
+					},
+					Arguments: []ast.Expression{
+						&ast.IntegerLiteral{
+							Token: token.Token{
+								Type:    token.INT,
+								Literal: "1",
+							},
+							Value: 1,
+						},
+						&ast.InfixExpression{
+							Token:    token.Token{
+								Type:    token.ASTERISK,
+								Literal: "*",
+							},
+							Operator: "*",
+							Left:     &ast.IntegerLiteral{
+								Token: token.Token{
+									Type:    token.INT,
+									Literal: "2",
+								},
+								Value: 2,
+							},
+							Right:    &ast.IntegerLiteral{
+								Token: token.Token{
+									Type:    token.INT,
+									Literal: "3",
+								},
+								Value: 3,
+							},
+						},
+						&ast.InfixExpression{
+							Token:    token.Token{
+								Type:    token.PLUS,
+								Literal: "+",
+							},
+							Operator: "+",
+							Left:     &ast.IntegerLiteral{
+								Token: token.Token{
+									Type:    token.INT,
+									Literal: "4",
+								},
+								Value: 4,
+							},
+							Right:    &ast.IntegerLiteral{
+								Token: token.Token{
+									Type:    token.INT,
+									Literal: "5",
+								},
+								Value: 5,
+							},
+						},
+					},
+				},
+			},
+		},
 	}
-	if program == nil {
-		return fmt.Errorf("ParseProgram() returned nil")
-	}
-	if len(program.Statements) != len(expected) {
-		return fmt.Errorf("program.Statements does not contain %d stratements. got=%d", len(expected), len(program.Statements))
-	}
-	var multiErr error
-	for i := 0; i < len(program.Statements); i++ {
-		s := program.Statements[i]
-		if err := testExpression(s, expected[i]); err != nil {
-			multiErr = multierr.Append(multiErr, err)
-			break
+	for _, tt := range tests {
+		l := lexer.New(tt.input)
+		p := New(l)
+		if err := testExpressionProgram(p, tt.expected); err != nil {
+			t.Error(err)
 		}
 	}
-	return multiErr
-}
-
-func testExpression(statement ast.Statement, expect ast.Expression) error {
-	stmt, ok := statement.(*ast.ExpressionStatement)
-	if !ok {
-		return fmt.Errorf("s not *ast.ExpressionStatement, got=%T", statement)
-	}
-
-	if !cmp.Equal(stmt.Expression, expect) {
-		return fmt.Errorf("%T diff %s", expect, cmp.Diff(expect, stmt.Expression))
-	}
-	return nil
 }

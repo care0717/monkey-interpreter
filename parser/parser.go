@@ -127,8 +127,11 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 		return nil
 	}
 
-	// TODO: セミコロンに遭遇するまで読み飛ばす
-	for !p.curTokenIs(token.SEMICOLON) {
+	p.nextToken()
+
+	stmt.Value = p.parseExpression(LOWEST)
+
+	if p.peekTokenIs(token.SEMICOLON) {
 		p.nextToken()
 	}
 
@@ -140,8 +143,10 @@ func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
 
 	p.nextToken()
 
-	// TODO: セミコロンに遭遇するまで読み飛ばす
-	for !p.curTokenIs(token.SEMICOLON) {
+	stmt.ReturnValue = p.parseExpression(LOWEST)
+
+
+	for p.peekTokenIs(token.SEMICOLON) {
 		p.nextToken()
 	}
 
@@ -149,7 +154,7 @@ func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
 }
 
 func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
-	defer untrace(trace("parseExpressionStatement"))
+	//defer untrace(trace("parseExpressionStatement"))
 	stmt := &ast.ExpressionStatement{Token: p.curToken}
 
 	stmt.Expression = p.parseExpression(LOWEST)
@@ -167,7 +172,7 @@ func (p *Parser) noPrefixParseFnError(t token.Type) {
 }
 
 func (p *Parser) parseExpression(precedence precedence) ast.Expression {
-	defer untrace(trace("parseExpression"))
+	//defer untrace(trace("parseExpression"))
 
 	prefix, ok := p.prefixParseFns[p.curToken.Type]
 	if !ok {
@@ -338,7 +343,7 @@ func (p *Parser) parseBoolean() ast.Expression {
 }
 
 func (p *Parser) parseIntegerLiteral() ast.Expression {
-	defer untrace(trace("parseIntegerLiteral"))
+	//defer untrace(trace("parseIntegerLiteral"))
 
 	lit := &ast.IntegerLiteral{Token: p.curToken}
 
@@ -354,7 +359,7 @@ func (p *Parser) parseIntegerLiteral() ast.Expression {
 }
 
 func (p *Parser) parsePrefixExpression() ast.Expression {
-	defer untrace(trace("parsePrefixExpression"))
+	//defer untrace(trace("parsePrefixExpression"))
 
 	expression := &ast.PrefixExpression{
 		Token:    p.curToken,
@@ -377,7 +382,7 @@ func (p *Parser) parseGroupedExpression() ast.Expression {
 }
 
 func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
-	defer untrace(trace("parseInfixExpression"))
+	//defer untrace(trace("parseInfixExpression"))
 
 	expression := &ast.InfixExpression{
 		Token:    p.curToken,

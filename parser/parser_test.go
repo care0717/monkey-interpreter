@@ -10,6 +10,20 @@ import (
 	"testing"
 )
 
+func checkParserErrors(p *Parser) error {
+	errors := p.Errors()
+	if len(errors) == 0 {
+		return nil
+	}
+
+	var err error
+	err = multierr.Append(err, fmt.Errorf("parser had %d errors\n", len(errors)))
+	for _, msg := range errors {
+		err = multierr.Append(err, fmt.Errorf("parser error: %q\n", msg))
+	}
+	return err
+}
+
 func TestLetStatement(t *testing.T) {
 	tests := []struct {
 		input    string
@@ -34,7 +48,13 @@ let foobar = 838383;
 						},
 						Value: "x",
 					},
-					Value: nil,
+					Value: &ast.IntegerLiteral{
+						Token: token.Token{
+							Type:    token.INT,
+							Literal: "5",
+						},
+						Value: 5,
+					},
 				},
 				{
 					Token: token.Token{
@@ -48,7 +68,13 @@ let foobar = 838383;
 						},
 						Value: "y",
 					},
-					Value: nil,
+					Value: &ast.IntegerLiteral{
+						Token: token.Token{
+							Type:    token.INT,
+							Literal: "10",
+						},
+						Value: 10,
+					},
 				},
 				{
 					Token: token.Token{
@@ -62,7 +88,13 @@ let foobar = 838383;
 						},
 						Value: "foobar",
 					},
-					Value: nil,
+					Value: &ast.IntegerLiteral{
+						Token: token.Token{
+							Type:    token.INT,
+							Literal: "838383",
+						},
+						Value: 838383,
+					},
 				},
 			},
 		},
@@ -93,19 +125,108 @@ let foobar = 838383;
 		}
 	}
 }
-
-func checkParserErrors(p *Parser) error {
-	errors := p.Errors()
-	if len(errors) == 0 {
-		return nil
+func testLetStatement(s ast.Statement, expect ast.LetStatement) error {
+	letStmt, ok := s.(*ast.LetStatement)
+	if !ok {
+		return fmt.Errorf("s not *%T, got=%T", expect, s)
 	}
 
-	var err error
-	err = multierr.Append(err, fmt.Errorf("parser had %d errors\n", len(errors)))
-	for _, msg := range errors {
-		err = multierr.Append(err, fmt.Errorf("parser error: %q\n", msg))
+	if !cmp.Equal(letStmt, &expect) {
+		return fmt.Errorf("%T diff %s", expect, cmp.Diff(&expect, letStmt))
 	}
-	return err
+	return nil
+}
+
+func TestReturnStatement(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected []ast.ReturnStatement
+	}{
+		{
+			input: `
+return 5;
+return 10;
+return 838383;
+`,
+			expected: []ast.ReturnStatement{
+				{
+					Token: token.Token{
+						Type:    token.RETURN,
+						Literal: "return",
+					},
+					ReturnValue: &ast.IntegerLiteral{
+						Token: token.Token{
+							Type:    token.INT,
+							Literal: "5",
+						},
+						Value: 5,
+					},
+				},
+				{
+					Token: token.Token{
+						Type:    token.RETURN,
+						Literal: "return",
+					},
+					ReturnValue: &ast.IntegerLiteral{
+						Token: token.Token{
+							Type:    token.INT,
+							Literal: "10",
+						},
+						Value: 10,
+					},
+				},
+				{
+					Token: token.Token{
+						Type:    token.RETURN,
+						Literal: "return",
+					},
+					ReturnValue: &ast.IntegerLiteral{
+						Token: token.Token{
+							Type:    token.INT,
+							Literal: "838383",
+						},
+						Value: 838383,
+					},
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		l := lexer.New(tt.input)
+		p := New(l)
+
+		program := p.ParseProgram()
+		if err := checkParserErrors(p); err != nil {
+			t.Error(err)
+		}
+		if program == nil {
+			t.Errorf("ParseProgram() returned nil")
+			continue
+		}
+
+		if len(program.Statements) != len(tt.expected) {
+			t.Errorf("program.Statements does not contain %d stratements. got=%d", len(tt.expected), len(program.Statements))
+			continue
+		}
+		for i := 0; i < len(program.Statements); i++ {
+			s := program.Statements[i]
+			if err := testReturnStatement(s, tt.expected[i]); err != nil {
+				t.Error(err)
+				break
+			}
+		}
+	}
+}
+func testReturnStatement(s ast.Statement, expect ast.ReturnStatement) error {
+	returnStmt, ok := s.(*ast.ReturnStatement)
+	if !ok {
+		return fmt.Errorf("s not *%T, got=%T", expect, s)
+	}
+
+	if !cmp.Equal(returnStmt, &expect) {
+		return fmt.Errorf("%T diff %s", expect, cmp.Diff(&expect, returnStmt))
+	}
+	return nil
 }
 
 func testExpressionProgram(p *Parser, expected []ast.Expression) error {
@@ -138,95 +259,6 @@ func testExpression(statement ast.Statement, expect ast.Expression) error {
 
 	if !cmp.Equal(stmt.Expression, expect) {
 		return fmt.Errorf("%T diff %s", expect, cmp.Diff(expect, stmt.Expression))
-	}
-	return nil
-}
-
-func testLetStatement(s ast.Statement, expect ast.LetStatement) error {
-	letStmt, ok := s.(*ast.LetStatement)
-	if !ok {
-		return fmt.Errorf("s not *%T, got=%T", expect, s)
-	}
-
-	if letStmt.TokenLiteral() != expect.TokenLiteral() {
-		return fmt.Errorf("letStmt.TokenLiteral() not %s, got=%s", expect.TokenLiteral(), letStmt.TokenLiteral())
-	}
-
-	if !cmp.Equal(letStmt.Name, expect.Name) {
-		return fmt.Errorf("letStmt.Name not %s, got=%s", expect.Name, letStmt.Name)
-	}
-
-	return nil
-}
-
-func TestReturnStatement(t *testing.T) {
-	tests := []struct {
-		input    string
-		expected []ast.ReturnStatement
-	}{
-		{
-			input: `
-return 5;
-return 10;
-return 838383;
-`,
-			expected: []ast.ReturnStatement{
-				{
-					Token: token.Token{
-						Type:    token.RETURN,
-						Literal: "return",
-					},
-				},
-				{
-					Token: token.Token{
-						Type:    token.RETURN,
-						Literal: "return",
-					},
-				},
-				{
-					Token: token.Token{
-						Type:    token.RETURN,
-						Literal: "return",
-					},
-				},
-			},
-		},
-	}
-	for _, tt := range tests {
-		l := lexer.New(tt.input)
-		p := New(l)
-
-		program := p.ParseProgram()
-		if err := checkParserErrors(p); err != nil {
-			t.Error(err)
-		}
-		if program == nil {
-			t.Errorf("ParseProgram() returned nil")
-			continue
-		}
-
-		if len(program.Statements) != len(tt.expected) {
-			t.Errorf("program.Statements does not contain %d stratements. got=%d", len(tt.expected), len(program.Statements))
-			continue
-		}
-		for i := 0; i < len(program.Statements); i++ {
-			s := program.Statements[i]
-			if err := testReturnStatement(s, tt.expected[i]); err != nil {
-				t.Error(err)
-				break
-			}
-		}
-	}
-}
-
-func testReturnStatement(s ast.Statement, expect ast.ReturnStatement) error {
-	returnStmt, ok := s.(*ast.ReturnStatement)
-	if !ok {
-		return fmt.Errorf("s not *%T, got=%T", expect, s)
-	}
-
-	if returnStmt.TokenLiteral() != expect.TokenLiteral() {
-		return fmt.Errorf("returnStmt.TokenLiteral() not %s, got=%s", expect.TokenLiteral(), returnStmt.TokenLiteral())
 	}
 	return nil
 }

@@ -236,13 +236,13 @@ func (fl *FunctionLiteral) String() string {
 }
 
 type CallExpression struct {
-	Token token.Token
-	Function Expression
+	Token     token.Token
+	Function  Expression
 	Arguments []Expression
 }
 
-func (ce *CallExpression) expressionNode() {}
-func (ce *CallExpression) TokenLiteral() string {return ce.Token.Literal}
+func (ce *CallExpression) expressionNode()      {}
+func (ce *CallExpression) TokenLiteral() string { return ce.Token.Literal }
 func (ce *CallExpression) String() string {
 	var out bytes.Buffer
 
@@ -258,5 +258,3 @@ func (ce *CallExpression) String() string {
 
 	return out.String()
 }
-
-

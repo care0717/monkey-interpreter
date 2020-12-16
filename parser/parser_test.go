@@ -989,7 +989,7 @@ func TestFunctionLiteralParsing(t *testing.T) {
 					},
 					Parameters: nil,
 					Body: &ast.BlockStatement{
-						Token:      token.Token{
+						Token: token.Token{
 							Type:    token.LBRACE,
 							Literal: "{",
 						},
@@ -1016,7 +1016,7 @@ func TestFunctionLiteralParsing(t *testing.T) {
 						},
 					},
 					Body: &ast.BlockStatement{
-						Token:      token.Token{
+						Token: token.Token{
 							Type:    token.LBRACE,
 							Literal: "{",
 						},
@@ -1048,7 +1048,7 @@ func TestCallExpressionParsing(t *testing.T) {
 						Type:    token.LPAREN,
 						Literal: "(",
 					},
-					Function:  &ast.Identifier{
+					Function: &ast.Identifier{
 						Token: token.Token{
 							Type:    token.IDENT,
 							Literal: "add",
@@ -1064,19 +1064,19 @@ func TestCallExpressionParsing(t *testing.T) {
 							Value: 1,
 						},
 						&ast.InfixExpression{
-							Token:    token.Token{
+							Token: token.Token{
 								Type:    token.ASTERISK,
 								Literal: "*",
 							},
 							Operator: "*",
-							Left:     &ast.IntegerLiteral{
+							Left: &ast.IntegerLiteral{
 								Token: token.Token{
 									Type:    token.INT,
 									Literal: "2",
 								},
 								Value: 2,
 							},
-							Right:    &ast.IntegerLiteral{
+							Right: &ast.IntegerLiteral{
 								Token: token.Token{
 									Type:    token.INT,
 									Literal: "3",
@@ -1085,19 +1085,19 @@ func TestCallExpressionParsing(t *testing.T) {
 							},
 						},
 						&ast.InfixExpression{
-							Token:    token.Token{
+							Token: token.Token{
 								Type:    token.PLUS,
 								Literal: "+",
 							},
 							Operator: "+",
-							Left:     &ast.IntegerLiteral{
+							Left: &ast.IntegerLiteral{
 								Token: token.Token{
 									Type:    token.INT,
 									Literal: "4",
 								},
 								Value: 4,
 							},
-							Right:    &ast.IntegerLiteral{
+							Right: &ast.IntegerLiteral{
 								Token: token.Token{
 									Type:    token.INT,
 									Literal: "5",

@@ -35,7 +35,7 @@ var precedences = map[token.Type]precedence{
 	token.MINUS:    SUM,
 	token.SLASH:    PRODUCT,
 	token.ASTERISK: PRODUCT,
-	token.LPAREN: CALL,
+	token.LPAREN:   CALL,
 }
 
 type Parser struct {
@@ -144,7 +144,6 @@ func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
 	p.nextToken()
 
 	stmt.ReturnValue = p.parseExpression(LOWEST)
-
 
 	for p.peekTokenIs(token.SEMICOLON) {
 		p.nextToken()
@@ -298,8 +297,8 @@ func (p *Parser) parseBlockStatement() *ast.BlockStatement {
 
 func (p *Parser) parseCallExpression(function ast.Expression) ast.Expression {
 	exp := &ast.CallExpression{
-		Token:     p.curToken,
-		Function:  function,
+		Token:    p.curToken,
+		Function: function,
 	}
 
 	exp.Arguments = p.parseCallArguments()

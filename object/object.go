@@ -10,6 +10,12 @@ const (
 	NULL_OBJ    = "NULL"
 )
 
+var (
+	NULL  = &null{}
+	TRUE  = &boolean{Value: true}
+	FALSE = &boolean{Value: false}
+)
+
 type Object interface {
 	Type() Type
 	Inspect() string
@@ -22,14 +28,14 @@ type Integer struct {
 func (i *Integer) Type() Type      { return INTEGER_OBJ }
 func (i *Integer) Inspect() string { return fmt.Sprintf("%d", i.Value) }
 
-type Boolean struct {
+type boolean struct {
 	Value bool
 }
 
-func (b *Boolean) Type() Type      { return BOOLEAN_OBJ }
-func (b *Boolean) Inspect() string { return fmt.Sprintf("%t", b.Value) }
+func (b *boolean) Type() Type      { return BOOLEAN_OBJ }
+func (b *boolean) Inspect() string { return fmt.Sprintf("%t", b.Value) }
 
-type Null struct{}
+type null struct{}
 
-func (n Null) Type() Type      { return NULL_OBJ }
-func (n Null) Inspect() string { return "null" }
+func (n null) Type() Type      { return NULL_OBJ }
+func (n null) Inspect() string { return "null" }

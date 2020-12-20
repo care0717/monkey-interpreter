@@ -10,17 +10,40 @@ import (
 )
 
 func TestEvalIntegerExpression(t *testing.T) {
-	tests := []struct{
-		input string
+	tests := []struct {
+		input    string
 		expected object.Object
-	} {
+	}{
 		{
 			input:    "5",
-			expected: &object.Integer{Value:5},
+			expected: &object.Integer{Value: 5},
 		},
 		{
 			input:    "10;",
-			expected: &object.Integer{Value:10},
+			expected: &object.Integer{Value: 10},
+		},
+	}
+
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+		if err := testObject(evaluated, tt.expected); err != nil {
+			t.Error(err)
+		}
+	}
+}
+
+func TestEvalBooleanExpression(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected object.Object
+	}{
+		{
+			input:    "true",
+			expected: object.TRUE,
+		},
+		{
+			input:    "false;",
+			expected: object.FALSE,
 		},
 	}
 

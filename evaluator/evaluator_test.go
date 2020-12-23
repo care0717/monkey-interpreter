@@ -30,6 +30,46 @@ func TestEvalIntegerExpression(t *testing.T) {
 			input:    "-10;",
 			expected: &object.Integer{Value: -10},
 		},
+		{
+			input:    "5 + 5 + 5 + 5 - 10;",
+			expected: &object.Integer{Value: 10},
+		},
+		{
+			input:    "2 * 2 * 2 * 2 * 2;",
+			expected: &object.Integer{Value: 32},
+		},
+		{
+			input:    "-50 + 100 + -50;",
+			expected: &object.Integer{Value: 0},
+		},
+		{
+			input:    "5*2+10;",
+			expected: &object.Integer{Value: 20},
+		},
+		{
+			input:    "5 + 2 * 10;",
+			expected: &object.Integer{Value: 25},
+		},
+		{
+			input:    "20 + 2 * -10;",
+			expected: &object.Integer{Value: 0},
+		},
+		{
+			input:    "50 / 2 * 2 + 10;",
+			expected: &object.Integer{Value: 60},
+		},
+		{
+			input:    "2*(5+10);",
+			expected: &object.Integer{Value: 30},
+		},
+		{
+			input:    "3 * (3 * 3) - 10;",
+			expected: &object.Integer{Value: 17},
+		},
+		{
+			input:    "(5 + 10 * 2 + 15 / 3) * 2 + -10;",
+			expected: &object.Integer{Value: 50},
+		},
 	}
 
 	for _, tt := range tests {
@@ -52,6 +92,70 @@ func TestEvalBooleanExpression(t *testing.T) {
 		{
 			input:    "false;",
 			expected: object.FALSE,
+		},
+		{
+			input:    "1 < 2",
+			expected: object.TRUE,
+		},
+		{
+			input:    "1 > 2",
+			expected: object.FALSE,
+		},
+		{
+			input:    "1 < 1",
+			expected: object.FALSE,
+		},
+		{
+			input:    "1 > 1",
+			expected: object.FALSE,
+		},
+		{
+			input:    "1 == 1",
+			expected: object.TRUE,
+		},
+		{
+			input:    "1 != 1",
+			expected: object.FALSE,
+		},
+		{
+			input:    "1 == 2",
+			expected: object.FALSE,
+		},
+		{
+			input:    "1 != 2",
+			expected: object.TRUE,
+		},
+		{
+			input:    "true == true",
+			expected: object.TRUE,
+		},
+		{
+			input:    "false == false",
+			expected: object.TRUE,
+		},
+		{
+			input:    "true == false",
+			expected: object.FALSE,
+		},
+		{
+			input:    "true != false",
+			expected: object.TRUE,
+		},
+		{
+			input:    "(1<2) == true",
+			expected: object.TRUE,
+		},
+		{
+			input:    "(1<2) == false",
+			expected: object.FALSE,
+		},
+		{
+			input:    "true == (1 > 2)",
+			expected: object.FALSE,
+		},
+		{
+			input:    "true == (1 != 2)",
+			expected: object.TRUE,
 		},
 	}
 

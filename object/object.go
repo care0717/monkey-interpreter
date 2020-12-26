@@ -5,9 +5,10 @@ import "fmt"
 type Type string
 
 const (
-	INTEGER_OBJ = "INTEGER"
-	BOOLEAN_OBJ = "BOOLEAN"
-	NULL_OBJ    = "NULL"
+	INTEGER_OBJ      = "INTEGER"
+	BOOLEAN_OBJ      = "BOOLEAN"
+	NULL_OBJ         = "NULL"
+	RETURN_VALUE_OBJ = "RETURN_VALUE"
 )
 
 var (
@@ -39,3 +40,10 @@ type null struct{}
 
 func (n null) Type() Type      { return NULL_OBJ }
 func (n null) Inspect() string { return "null" }
+
+type ReturnValue struct {
+	Value Object
+}
+
+func (r ReturnValue) Type() Type      { return RETURN_VALUE_OBJ }
+func (r ReturnValue) Inspect() string { return r.Value.Inspect() }

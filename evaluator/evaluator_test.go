@@ -75,7 +75,7 @@ func TestEvalIntegerExpression(t *testing.T) {
 	for _, tt := range tests {
 		evaluated := testEval(tt.input)
 		if err := testObject(evaluated, tt.expected); err != nil {
-			t.Error(err)
+			t.Error(fmt.Errorf("case: %s. err: %w", tt.input, err))
 		}
 	}
 }
@@ -162,7 +162,7 @@ func TestEvalBooleanExpression(t *testing.T) {
 	for _, tt := range tests {
 		evaluated := testEval(tt.input)
 		if err := testObject(evaluated, tt.expected); err != nil {
-			t.Error(err)
+			t.Error(fmt.Errorf("case: %s. err: %w", tt.input, err))
 		}
 	}
 }
@@ -201,19 +201,19 @@ func TestBangOperator(t *testing.T) {
 	for _, tt := range tests {
 		evaluated := testEval(tt.input)
 		if err := testObject(evaluated, tt.expected); err != nil {
-			t.Error(err)
+			t.Error(fmt.Errorf("case: %s. err: %w", tt.input, err))
 		}
 	}
 }
 
 func TestIfElseExpression(t *testing.T) {
-	tests := []struct{
+	tests := []struct {
 		input    string
 		expected object.Object
-	} {
+	}{
 		{
 			input:    "if (true) { 10 }",
-			expected: &object.Integer{Value:10},
+			expected: &object.Integer{Value: 10},
 		},
 		{
 			input:    "if (false) { 10 }",
@@ -221,11 +221,11 @@ func TestIfElseExpression(t *testing.T) {
 		},
 		{
 			input:    "if (1) { 10 }",
-			expected: &object.Integer{Value:10},
+			expected: &object.Integer{Value: 10},
 		},
 		{
 			input:    "if (1<2) { 10 }",
-			expected: &object.Integer{Value:10},
+			expected: &object.Integer{Value: 10},
 		},
 		{
 			input:    "if (1>2) { 10 }",
@@ -233,17 +233,58 @@ func TestIfElseExpression(t *testing.T) {
 		},
 		{
 			input:    "if (1 > 2) { 10 } else {20}",
-			expected: &object.Integer{Value:20},
+			expected: &object.Integer{Value: 20},
 		},
 		{
 			input:    "if (1 < 2) { 10 } else { 20 }",
-			expected: &object.Integer{Value:10},
+			expected: &object.Integer{Value: 10},
 		},
 	}
 	for _, tt := range tests {
 		evaluated := testEval(tt.input)
 		if err := testObject(evaluated, tt.expected); err != nil {
-			t.Error(err)
+			t.Error(fmt.Errorf("case: %s. err: %w", tt.input, err))
+		}
+	}
+}
+
+func TestReturnStatements(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected object.Object
+	}{
+		{
+			input:    "return 10;",
+			expected: &object.Integer{Value: 10},
+		},
+		{
+			input:    "return 10;9",
+			expected: &object.Integer{Value: 10},
+		},
+		{
+			input:    "return 2*5; 9;",
+			expected: &object.Integer{Value: 10},
+		},
+		{
+			input:    "9; return 2*5; 9;",
+			expected: &object.Integer{Value: 10},
+		},
+		{
+			input: `
+if (10 > 1) {
+  if (10 > 2) { 
+    return 10;
+  } 
+  return 1;
+}
+`,
+			expected: &object.Integer{Value: 10},
+		},
+	}
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+		if err := testObject(evaluated, tt.expected); err != nil {
+			t.Error(fmt.Errorf("case: %s. err: %w", tt.input, err))
 		}
 	}
 }

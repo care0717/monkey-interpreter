@@ -289,6 +289,57 @@ if (10 > 1) {
 	}
 }
 
+func TestErrorHandling(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected object.Object
+	}{
+		{
+			input:    "5 + true;",
+			expected: &object.Error{Message: "type mismatch: INTEGER + BOOLEAN"},
+		},
+		{
+			input:    "5 * true; 5;",
+			expected: &object.Error{Message: "type mismatch: INTEGER * BOOLEAN"},
+		},
+		{
+			input:    "-true;",
+			expected: &object.Error{Message: "unknown operator: -BOOLEAN"},
+		},
+		{
+			input:    "true + false;",
+			expected: &object.Error{Message: "unknown operator: BOOLEAN + BOOLEAN"},
+		},
+		{
+			input:    "5; true - true; 1;",
+			expected: &object.Error{Message: "unknown operator: BOOLEAN - BOOLEAN"},
+		},
+		{
+			input:    "if (10 > 1) { true * true; }",
+			expected: &object.Error{Message: "unknown operator: BOOLEAN * BOOLEAN"},
+		},
+		{
+			input: `
+if (10 > 1) {
+  if (10 > 2) { 
+    true / false;
+	1;
+  } 
+  return 1;
+}
+`,
+			expected: &object.Error{Message: "unknown operator: BOOLEAN / BOOLEAN"},
+		},
+	}
+
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+		if err := testObject(evaluated, tt.expected); err != nil {
+			t.Error(fmt.Errorf("case: %s. err: %w", tt.input, err))
+		}
+	}
+}
+
 func testEval(input string) object.Object {
 	l := lexer.New(input)
 	p := parser.New(l)

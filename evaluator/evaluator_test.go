@@ -330,8 +330,42 @@ if (10 > 1) {
 `,
 			expected: &object.Error{Message: "unknown operator: BOOLEAN / BOOLEAN"},
 		},
+		{
+			input:    "foo",
+			expected: &object.Error{Message: "identifier not found: foo"},
+		},
 	}
 
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+		if err := testObject(evaluated, tt.expected); err != nil {
+			t.Error(fmt.Errorf("case: %s. err: %w", tt.input, err))
+		}
+	}
+}
+
+func TestLetStatements(t *testing.T) {
+	var tests = []struct {
+		input    string
+		expected object.Object
+	}{
+		{
+			input:    "let a = 5; a;" ,
+			expected: &object.Integer{Value: 5},
+		},
+		{
+			input:    "let a = 5 * 5 a;" ,
+			expected: &object.Integer{Value: 25},
+		},
+		{
+			input:    "let a = 5; let b = a + 1; b" ,
+			expected: &object.Integer{Value: 6},
+		},
+		{
+			input:    "let a = 5; let b = a; let c = a + b + 5; return c * 10;" ,
+			expected: &object.Integer{Value: 150},
+		},
+	}
 	for _, tt := range tests {
 		evaluated := testEval(tt.input)
 		if err := testObject(evaluated, tt.expected); err != nil {
@@ -345,8 +379,8 @@ func testEval(input string) object.Object {
 	p := parser.New(l)
 
 	program := p.ParseProgram()
-
-	return Eval(program)
+	env := object.NewEnvironment()
+	return Eval(program, env)
 }
 
 func testObject(got, expected object.Object) error {

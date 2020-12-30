@@ -2,9 +2,11 @@ package evaluator
 
 import (
 	"fmt"
+	"github.com/care0717/monkey-interpreter/ast"
 	"github.com/care0717/monkey-interpreter/lexer"
 	"github.com/care0717/monkey-interpreter/object"
 	"github.com/care0717/monkey-interpreter/parser"
+	"github.com/care0717/monkey-interpreter/token"
 	"github.com/google/go-cmp/cmp"
 	"testing"
 )
@@ -72,10 +74,9 @@ func TestEvalIntegerExpression(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
-		evaluated := testEval(tt.input)
-		if err := testObject(evaluated, tt.expected); err != nil {
-			t.Error(fmt.Errorf("case: %s. err: %w", tt.input, err))
+	if errors := testEval(tests); errors != nil {
+		for _, err := range errors {
+			t.Error(err)
 		}
 	}
 }
@@ -159,10 +160,9 @@ func TestEvalBooleanExpression(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
-		evaluated := testEval(tt.input)
-		if err := testObject(evaluated, tt.expected); err != nil {
-			t.Error(fmt.Errorf("case: %s. err: %w", tt.input, err))
+	if errors := testEval(tests); errors != nil {
+		for _, err := range errors {
+			t.Error(err)
 		}
 	}
 }
@@ -198,10 +198,9 @@ func TestBangOperator(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
-		evaluated := testEval(tt.input)
-		if err := testObject(evaluated, tt.expected); err != nil {
-			t.Error(fmt.Errorf("case: %s. err: %w", tt.input, err))
+	if errors := testEval(tests); errors != nil {
+		for _, err := range errors {
+			t.Error(err)
 		}
 	}
 }
@@ -240,10 +239,9 @@ func TestIfElseExpression(t *testing.T) {
 			expected: &object.Integer{Value: 10},
 		},
 	}
-	for _, tt := range tests {
-		evaluated := testEval(tt.input)
-		if err := testObject(evaluated, tt.expected); err != nil {
-			t.Error(fmt.Errorf("case: %s. err: %w", tt.input, err))
+	if errors := testEval(tests); errors != nil {
+		for _, err := range errors {
+			t.Error(err)
 		}
 	}
 }
@@ -281,10 +279,9 @@ if (10 > 1) {
 			expected: &object.Integer{Value: 10},
 		},
 	}
-	for _, tt := range tests {
-		evaluated := testEval(tt.input)
-		if err := testObject(evaluated, tt.expected); err != nil {
-			t.Error(fmt.Errorf("case: %s. err: %w", tt.input, err))
+	if errors := testEval(tests); errors != nil {
+		for _, err := range errors {
+			t.Error(err)
 		}
 	}
 }
@@ -336,56 +333,164 @@ if (10 > 1) {
 		},
 	}
 
-	for _, tt := range tests {
-		evaluated := testEval(tt.input)
-		if err := testObject(evaluated, tt.expected); err != nil {
-			t.Error(fmt.Errorf("case: %s. err: %w", tt.input, err))
+	if errors := testEval(tests); errors != nil {
+		for _, err := range errors {
+			t.Error(err)
 		}
 	}
 }
 
 func TestLetStatements(t *testing.T) {
-	var tests = []struct {
+	tests := []struct {
 		input    string
 		expected object.Object
 	}{
 		{
-			input:    "let a = 5; a;" ,
+			input:    "let a = 5; a;",
 			expected: &object.Integer{Value: 5},
 		},
 		{
-			input:    "let a = 5 * 5 a;" ,
+			input:    "let a = 5 * 5 a;",
 			expected: &object.Integer{Value: 25},
 		},
 		{
-			input:    "let a = 5; let b = a + 1; b" ,
+			input:    "let a = 5; let b = a + 1; b",
 			expected: &object.Integer{Value: 6},
 		},
 		{
-			input:    "let a = 5; let b = a; let c = a + b + 5; return c * 10;" ,
+			input:    "let a = 5; let b = a; let c = a + b + 5; return c * 10;",
 			expected: &object.Integer{Value: 150},
 		},
 	}
-	for _, tt := range tests {
-		evaluated := testEval(tt.input)
-		if err := testObject(evaluated, tt.expected); err != nil {
-			t.Error(fmt.Errorf("case: %s. err: %w", tt.input, err))
+	if errors := testEval(tests); errors != nil {
+		for _, err := range errors {
+			t.Error(err)
 		}
 	}
 }
 
-func testEval(input string) object.Object {
-	l := lexer.New(input)
-	p := parser.New(l)
+func TestFunctionObject(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected object.Object
+	}{
+		{
+			input: "fn(x) { x + 2; };",
+			expected: &object.Function{
+				Parameters: []*ast.Identifier{
+					{
+						Token: token.Token{
+							Type:    token.IDENT,
+							Literal: "x",
+						},
+						Value: "x",
+					},
+				},
+				Body: &ast.BlockStatement{
+					Token: token.Token{
+						Type:    token.LBRACE,
+						Literal: "{",
+					},
+					Statements: []ast.Statement{
+						&ast.ExpressionStatement{
+							Token: token.Token{
+								Type:    token.IDENT,
+								Literal: "x",
+							},
+							Expression: &ast.InfixExpression{
+								Token: token.Token{
+									Type:    token.PLUS,
+									Literal: "+",
+								},
+								Operator: "+",
+								Left: &ast.Identifier{
+									Token: token.Token{
+										Type:    token.IDENT,
+										Literal: "x",
+									},
+									Value: "x",
+								},
+								Right: &ast.IntegerLiteral{
+									Token: token.Token{
+										Type:    token.INT,
+										Literal: "2",
+									},
+									Value: 2,
+								},
+							},
+						},
+					},
+				},
+				Env: object.NewEnvironment(),
+			},
+		},
+	}
+	if errors := testEval(tests); errors != nil {
+		for _, err := range errors {
+			t.Error(err)
+		}
+	}
+}
 
-	program := p.ParseProgram()
-	env := object.NewEnvironment()
-	return Eval(program, env)
+func TestFunctionApplication(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected object.Object
+	}{
+		{
+			input:    "let identity = fn(x) { x; }; identity(5);",
+			expected: &object.Integer{Value: 5},
+		},
+		{
+			input:    "let identity = fn(x) { let a = x; return a; }; identity(5);",
+			expected: &object.Integer{Value: 5},
+		},
+		{
+			input:    "let double = fn(x) { return x * 2; }; double(5);",
+			expected: &object.Integer{Value: 10},
+		},
+		{
+			input:    "let add = fn(x, y) { return x + y; }; add(5, 3);",
+			expected: &object.Integer{Value: 8},
+		},
+		{
+			input:    "let add = fn(x, y) { return x + y; }; add(5 + 2, add(5, 3));",
+			expected: &object.Integer{Value: 15},
+		},
+		{
+			input:    "fn(x){ x; }(5)",
+			expected: &object.Integer{Value: 5},
+		},
+	}
+	if errors := testEval(tests); errors != nil {
+		for _, err := range errors {
+			t.Error(err)
+		}
+	}
+}
+
+func testEval(tests []struct {
+	input    string
+	expected object.Object
+}) []error {
+	var errors []error
+	for _, tt := range tests {
+		l := lexer.New(tt.input)
+		p := parser.New(l)
+
+		program := p.ParseProgram()
+		env := object.NewEnvironment()
+		evaluated := Eval(program, env)
+		if err := testObject(evaluated, tt.expected); err != nil {
+			errors = append(errors, fmt.Errorf("case: %s. err: %w", tt.input, err))
+		}
+	}
+	return errors
 }
 
 func testObject(got, expected object.Object) error {
 	if !cmp.Equal(got, expected) {
-		return fmt.Errorf("%T diff %s", expected, cmp.Diff(got, expected))
+		return fmt.Errorf("%T diff %s[-got, +expected]", expected, cmp.Diff(got, expected))
 	}
 	return nil
 }

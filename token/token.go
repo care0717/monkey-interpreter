@@ -24,8 +24,9 @@ const (
 	EOF          = "EOF"
 
 	// 識別子・リテラル
-	IDENT = "IDENT"
-	INT   = "INT"
+	IDENT  = "IDENT"
+	INT    = "INT"
+	STRING = "STRING"
 
 	// 演算子
 	ASSIGN   = "="

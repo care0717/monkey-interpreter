@@ -167,6 +167,24 @@ func TestEvalBooleanExpression(t *testing.T) {
 	}
 }
 
+func TestStringLiteral(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected object.Object
+	}{
+		{
+			input:    `"hello world!"`,
+			expected: &object.String{Value: "hello world!"},
+		},
+	}
+
+	if errors := testEval(tests); errors != nil {
+		for _, err := range errors {
+			t.Error(err)
+		}
+	}
+}
+
 func TestBangOperator(t *testing.T) {
 	tests := []struct {
 		input    string

@@ -67,6 +67,21 @@ func (l *lexer) skipWhitespace() {
 	}
 }
 
+func (l *lexer) readString() string {
+	position := l.position + 1
+L:
+	for {
+		l.readChar()
+		switch l.ch {
+		case '"', 0:
+			break L
+		case '\\':
+			l.readChar()
+		}
+	}
+	return l.input[position:l.position]
+}
+
 func (l *lexer) NextToken() token.Token {
 	var tok token.Token
 
@@ -115,6 +130,9 @@ func (l *lexer) NextToken() token.Token {
 		tok = token.NewToken(token.LBRACE, l.ch)
 	case '}':
 		tok = token.NewToken(token.RBRACE, l.ch)
+	case '"':
+		tok.Type = token.STRING
+		tok.Literal = l.readString()
 	case 0:
 		tok.Literal = ""
 		tok.Type = token.EOF

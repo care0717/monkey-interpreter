@@ -143,6 +143,23 @@ let result = add(five, ten);
 				{token.EOF, ""},
 			},
 		},
+		{
+			input: `
+"foobar"
+"foo bar"
+"hello \"world\""
+"hello\n world"
+"hello\t\t\tworld"
+`,
+			expected: []token.Token{
+				{Type: token.STRING, Literal: "foobar"},
+				{Type: token.STRING, Literal: "foo bar"},
+				{Type: token.STRING, Literal: `hello \"world\"`},
+				{Type: token.STRING, Literal: `hello\n world`},
+				{Type: token.STRING, Literal: `hello\t\t\tworld`},
+				{token.EOF, ""},
+			},
+		},
 	}
 
 	for _, tt := range tests {

@@ -1118,3 +1118,30 @@ func TestCallExpressionParsing(t *testing.T) {
 		}
 	}
 }
+
+func TestStringLiteralExpression(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected []ast.Expression
+	}{
+		{
+			input: `"hello world"`,
+			expected: []ast.Expression{
+				&ast.StringLiteral{
+					Token: token.Token{
+						Type:    token.STRING,
+						Literal: "hello world",
+					},
+					Value: "hello world",
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		l := lexer.New(tt.input)
+		p := New(l)
+		if err := testExpressionProgram(p, tt.expected); err != nil {
+			t.Error(err)
+		}
+	}
+}

@@ -176,6 +176,10 @@ func TestStringLiteral(t *testing.T) {
 			input:    `"hello world!"`,
 			expected: &object.String{Value: "hello world!"},
 		},
+		{
+			input:    `"hello" + " " + "world!"`,
+			expected: &object.String{Value: "hello world!"},
+		},
 	}
 
 	if errors := testEval(tests); errors != nil {
@@ -348,6 +352,10 @@ if (10 > 1) {
 		{
 			input:    "foo",
 			expected: &object.Error{Message: "identifier not found: foo"},
+		},
+		{
+			input:    `"foo" - "bar"`,
+			expected: &object.Error{Message: "unknown operator: STRING - STRING"},
 		},
 	}
 

@@ -495,6 +495,35 @@ func TestFunctionApplication(t *testing.T) {
 	}
 }
 
+func TestBuiltinFunctions(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected object.Object
+	}{
+		{
+			input:    `len("")`,
+			expected: &object.Integer{Value: 0},
+		},
+		{
+			input:    `len("hello world")`,
+			expected: &object.Integer{Value: 11},
+		},
+		{
+			input:    `len(1)`,
+			expected: &object.Error{Message: "argument to `len` not supported, got INTEGER"},
+		},
+		{
+			input:    `len("one", "two")`,
+			expected: &object.Error{Message: "wrong number of arguments. got=2, want=1"},
+		},
+	}
+	if errors := testEval(tests); errors != nil {
+		for _, err := range errors {
+			t.Error(err)
+		}
+	}
+}
+
 func testEval(tests []struct {
 	input    string
 	expected object.Object

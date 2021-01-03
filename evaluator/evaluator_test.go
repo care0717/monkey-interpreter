@@ -516,6 +516,70 @@ func TestBuiltinFunctions(t *testing.T) {
 			input:    `len("one", "two")`,
 			expected: &object.Error{Message: "wrong number of arguments. got=2, want=1"},
 		},
+		{
+			input:    `len([1, "two"])`,
+			expected: &object.Integer{Value: 2},
+		},
+	}
+	if errors := testEval(tests); errors != nil {
+		for _, err := range errors {
+			t.Error(err)
+		}
+	}
+}
+
+func TestArrayLiterals(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected object.Object
+	}{
+		{
+			input: `[1, 2 * 3, 4 + 5]`,
+			expected: &object.Array{
+				Elements: []object.Object{
+					&object.Integer{Value: 1},
+					&object.Integer{Value: 6},
+					&object.Integer{Value: 9},
+				},
+			},
+		},
+	}
+	if errors := testEval(tests); errors != nil {
+		for _, err := range errors {
+			t.Error(err)
+		}
+	}
+}
+
+func TestArrayIndexExpression(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected object.Object
+	}{
+		{
+			input:    `[1, 2, 3][0]`,
+			expected: &object.Integer{Value: 1},
+		},
+		{
+			input:    `[1, 2, 3][1+1]`,
+			expected: &object.Integer{Value: 3},
+		},
+		{
+			input:    `let i = 1; [1, 2, 3][i]`,
+			expected: &object.Integer{Value: 2},
+		},
+		{
+			input:    `let myArray = [1, 2, 3]; myArray[1] + myArray[2]`,
+			expected: &object.Integer{Value: 5},
+		},
+		{
+			input:    `[1, 2, 3][3]`,
+			expected: object.NULL,
+		},
+		{
+			input:    `[1, 2, 3][-1]`,
+			expected: object.NULL,
+		},
 	}
 	if errors := testEval(tests); errors != nil {
 		for _, err := range errors {

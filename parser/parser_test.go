@@ -237,9 +237,6 @@ func testExpressionProgram(p *Parser, expected []ast.Expression) error {
 	if program == nil {
 		return fmt.Errorf("ParseProgram() returned nil")
 	}
-	if len(program.Statements) != len(expected) {
-		return fmt.Errorf("program.Statements does not contain %d stratements. got=%d", len(expected), len(program.Statements))
-	}
 	var multiErr error
 	for i := 0; i < len(program.Statements); i++ {
 		s := program.Statements[i]
@@ -258,7 +255,7 @@ func testExpression(statement ast.Statement, expect ast.Expression) error {
 	}
 
 	if !cmp.Equal(stmt.Expression, expect) {
-		return fmt.Errorf("%T diff %s", expect, cmp.Diff(expect, stmt.Expression))
+		return fmt.Errorf("%T diff %s [-got, +expected]", expect, cmp.Diff(stmt.Expression, expect))
 	}
 	return nil
 }
@@ -752,6 +749,14 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 			"add(a + b + c * d / f + g)",
 			"add((a + (b + (((c * d) / f) + g))))",
 		},
+		{
+			"a * [1, 2, 3][b * c] * d",
+			"((a * ([1, 2, 3][(b * c)])) * d)",
+		},
+		{
+			"add(a * b[2], 2 * [1, 2][1])",
+			"add((a * (b[2])), (2 * ([1, 2][1])))",
+		},
 	}
 	for _, tt := range tests {
 		l := lexer.New(tt.input)
@@ -1133,6 +1138,123 @@ func TestStringLiteralExpression(t *testing.T) {
 						Literal: "hello world",
 					},
 					Value: "hello world",
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		l := lexer.New(tt.input)
+		p := New(l)
+		if err := testExpressionProgram(p, tt.expected); err != nil {
+			t.Error(err)
+		}
+	}
+}
+
+func TestParsingArrayLiterals(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected []ast.Expression
+	}{
+		{
+			input: `[1, 2 * 3, "foo"]`,
+			expected: []ast.Expression{
+				&ast.ArrayLiteral{
+					Token: token.Token{
+						Type:    token.LBRACKET,
+						Literal: "[",
+					},
+					Elements: []ast.Expression{
+						&ast.IntegerLiteral{
+							Token: token.Token{
+								Type:    token.INT,
+								Literal: "1",
+							},
+							Value: 1,
+						},
+						&ast.InfixExpression{
+							Token: token.Token{
+								Type:    token.ASTERISK,
+								Literal: "*",
+							},
+							Operator: "*",
+							Left: &ast.IntegerLiteral{
+								Token: token.Token{
+									Type:    token.INT,
+									Literal: "2",
+								},
+								Value: 2,
+							},
+							Right: &ast.IntegerLiteral{
+								Token: token.Token{
+									Type:    token.INT,
+									Literal: "3",
+								},
+								Value: 3,
+							},
+						},
+						&ast.StringLiteral{
+							Token: token.Token{
+								Type:    token.STRING,
+								Literal: "foo",
+							},
+							Value: "foo",
+						},
+					},
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		l := lexer.New(tt.input)
+		p := New(l)
+		if err := testExpressionProgram(p, tt.expected); err != nil {
+			t.Error(err)
+		}
+	}
+}
+
+func TestParsingIndexExpression(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected []ast.Expression
+	}{
+		{
+			input: "myArray[1+2]",
+			expected: []ast.Expression{
+				&ast.IndexExpression{
+					Token: token.Token{
+						Type:    token.LBRACKET,
+						Literal: "[",
+					},
+					Left: &ast.Identifier{
+						Token: token.Token{
+							Type:    token.IDENT,
+							Literal: "myArray",
+						},
+						Value: "myArray",
+					},
+					Index: &ast.InfixExpression{
+						Token: token.Token{
+							Type:    token.PLUS,
+							Literal: "+",
+						},
+						Operator: "+",
+						Left: &ast.IntegerLiteral{
+							Token: token.Token{
+								Type:    token.INT,
+								Literal: "1",
+							},
+							Value: 1,
+						},
+						Right: &ast.IntegerLiteral{
+							Token: token.Token{
+								Type:    token.INT,
+								Literal: "2",
+							},
+							Value: 2,
+						},
+					},
 				},
 			},
 		},

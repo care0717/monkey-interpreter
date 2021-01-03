@@ -157,7 +157,19 @@ let result = add(five, ten);
 				{Type: token.STRING, Literal: `hello \"world\"`},
 				{Type: token.STRING, Literal: `hello\n world`},
 				{Type: token.STRING, Literal: `hello\t\t\tworld`},
-				{token.EOF, ""},
+				{Type: token.EOF, Literal: ""},
+			},
+		},
+		{
+			input: "[1, 2];",
+			expected: []token.Token{
+				{Type: token.LBRACKET, Literal: "["},
+				{Type: token.INT, Literal: "1"},
+				{Type: token.COMMA, Literal: ","},
+				{Type: token.INT, Literal: "2"},
+				{Type: token.RBRACKET, Literal: "]"},
+				{Type: token.SEMICOLON, Literal: ";"},
+				{Type: token.EOF, Literal: ""},
 			},
 		},
 	}

@@ -130,6 +130,10 @@ func (l *lexer) NextToken() token.Token {
 		tok = token.NewToken(token.LBRACE, l.ch)
 	case '}':
 		tok = token.NewToken(token.RBRACE, l.ch)
+	case '[':
+		tok = token.NewToken(token.LBRACKET, l.ch)
+	case ']':
+		tok = token.NewToken(token.RBRACKET, l.ch)
 	case '"':
 		tok.Type = token.STRING
 		tok.Literal = l.readString()

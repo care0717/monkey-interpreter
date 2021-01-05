@@ -172,6 +172,18 @@ let result = add(five, ten);
 				{Type: token.EOF, Literal: ""},
 			},
 		},
+		{
+			input: `{"foo": "bar"};`,
+			expected: []token.Token{
+				{Type: token.LBRACE, Literal: "{"},
+				{Type: token.STRING, Literal: "foo"},
+				{Type: token.COLON, Literal: ":"},
+				{Type: token.STRING, Literal: "bar"},
+				{Type: token.RBRACE, Literal: "}"},
+				{Type: token.SEMICOLON, Literal: ";"},
+				{Type: token.EOF, Literal: ""},
+			},
+		},
 	}
 
 	for _, tt := range tests {

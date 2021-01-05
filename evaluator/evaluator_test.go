@@ -403,7 +403,7 @@ func TestFunctionObject(t *testing.T) {
 		{
 			input: "fn(x) { x + 2; };",
 			expected: &object.Function{
-				Parameters: []*ast.Identifier{
+				Parameters: []ast.Identifier{
 					{
 						Token: token.Token{
 							Type:    token.IDENT,
@@ -423,20 +423,20 @@ func TestFunctionObject(t *testing.T) {
 								Type:    token.IDENT,
 								Literal: "x",
 							},
-							Expression: &ast.InfixExpression{
+							Expression: ast.InfixExpression{
 								Token: token.Token{
 									Type:    token.PLUS,
 									Literal: "+",
 								},
 								Operator: "+",
-								Left: &ast.Identifier{
+								Left: ast.Identifier{
 									Token: token.Token{
 										Type:    token.IDENT,
 										Literal: "x",
 									},
 									Value: "x",
 								},
-								Right: &ast.IntegerLiteral{
+								Right: ast.IntegerLiteral{
 									Token: token.Token{
 										Type:    token.INT,
 										Literal: "2",
@@ -579,6 +579,41 @@ func TestArrayIndexExpression(t *testing.T) {
 		{
 			input:    `[1, 2, 3][-1]`,
 			expected: object.NULL,
+		},
+	}
+	if errors := testEval(tests); errors != nil {
+		for _, err := range errors {
+			t.Error(err)
+		}
+	}
+}
+
+func TestHashLiterals(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected object.Object
+	}{
+		{
+			input: `
+let t = "two";
+{
+  "one": 10-9,
+  t: 1+1,
+  "thr" + "ee": 6/2,
+  4: 4,
+  true: 5,
+  false: 6
+}`,
+			expected: &object.Hash{
+				Pairs: map[object.HashKey]object.HashPair{
+					(&object.String{Value: "one"}).HashKey():   {Key: &object.String{Value: "one"}, Value: &object.Integer{Value: 1}},
+					(&object.String{Value: "two"}).HashKey():   {Key: &object.String{Value: "two"}, Value: &object.Integer{Value: 2}},
+					(&object.String{Value: "three"}).HashKey(): {Key: &object.String{Value: "three"}, Value: &object.Integer{Value: 3}},
+					(&object.Integer{Value: 4}).HashKey():      {Key: &object.Integer{Value: 4}, Value: &object.Integer{Value: 4}},
+					object.TRUE.HashKey():                      {Key: object.TRUE, Value: &object.Integer{Value: 5}},
+					object.FALSE.HashKey():                     {Key: object.FALSE, Value: &object.Integer{Value: 6}},
+				},
+			},
 		},
 	}
 	if errors := testEval(tests); errors != nil {

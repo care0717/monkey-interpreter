@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/care0717/monkey-interpreter/ast"
+	"hash/fnv"
 	"strings"
 )
 
@@ -19,6 +20,7 @@ const (
 	FUNCTION_OBJ     = "FUNCTION"
 	BUILTIN_OBJ      = "BUILTIN"
 	ARRAY_OBJ        = "ARRAY"
+	HASH_OBJ         = "HASH"
 )
 
 var (
@@ -73,7 +75,7 @@ func (e Error) Type() Type      { return ERROR_OBJ }
 func (e Error) Inspect() string { return "ERROR: " + e.Message }
 
 type Function struct {
-	Parameters []*ast.Identifier
+	Parameters []ast.Identifier
 	Body       *ast.BlockStatement
 	Env        Environment
 }
@@ -121,6 +123,62 @@ func (a Array) Inspect() string {
 	out.WriteString("[")
 	out.WriteString(strings.Join(elements, ", "))
 	out.WriteString("]")
+
+	return out.String()
+}
+
+type HashKey struct {
+	Type  Type
+	Value uint64
+}
+
+func (b *boolean) HashKey() HashKey {
+	var value uint64
+	if b.Value {
+		value = 1
+	} else {
+		value = 0
+	}
+
+	return HashKey{Type: b.Type(), Value: value}
+}
+
+func (i *Integer) HashKey() HashKey {
+	return HashKey{Type: i.Type(), Value: uint64(i.Value)}
+}
+
+func (s *String) HashKey() HashKey {
+	h := fnv.New64a()
+	h.Write([]byte(s.Value))
+
+	return HashKey{Type: s.Type(), Value: h.Sum64()}
+}
+
+type Hashable interface {
+	HashKey() HashKey
+}
+
+type HashPair struct {
+	Key   Object
+	Value Object
+}
+
+type Hash struct {
+	Pairs map[HashKey]HashPair
+}
+
+func (h *Hash) Type() Type { return HASH_OBJ }
+func (h *Hash) Inspect() string {
+	var out bytes.Buffer
+
+	var pairs []string
+	for _, pair := range h.Pairs {
+		pairs = append(pairs, fmt.Sprintf("%s: %s", pair.Key.Inspect(), pair.Value.Inspect()))
+	}
+
+	out.WriteString("{")
+	out.WriteString(strings.Join(pairs, ", "))
+	out.WriteString("}")
 
 	return out.String()
 }

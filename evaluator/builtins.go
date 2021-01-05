@@ -60,7 +60,7 @@ var builtins = map[string]*object.Builtin{
 			length := len(arg.Elements)
 			newElements := make([]object.Object, length-1, length-1)
 			copy(newElements, arg.Elements[1:length])
-			return &object.Array{Elements:newElements}
+			return &object.Array{Elements: newElements}
 		default:
 			return newError("argument to `rest` not supported, got %s", arg.Type())
 		}
@@ -76,7 +76,7 @@ var builtins = map[string]*object.Builtin{
 			newElements := make([]object.Object, length+1, length+1)
 			copy(newElements, arg.Elements)
 			newElements[length] = args[1]
-			return &object.Array{Elements:newElements}
+			return &object.Array{Elements: newElements}
 		default:
 			return newError("argument to `push` not supported, got %s", arg.Type())
 		}

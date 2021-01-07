@@ -1,6 +1,7 @@
 package evaluator
 
 import (
+	"fmt"
 	"github.com/care0717/monkey-interpreter/object"
 )
 
@@ -82,5 +83,11 @@ var builtins = map[string]*object.Builtin{
 		default:
 			return newError("argument to `push` not supported, got %s", arg.Type())
 		}
+	}},
+	"puts": {Fn: func(args ...object.Object) object.Object {
+		for _, arg := range args {
+			fmt.Println(arg.Inspect())
+		}
+		return object.NULL
 	}},
 }

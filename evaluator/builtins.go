@@ -1,6 +1,8 @@
 package evaluator
 
-import "github.com/care0717/monkey-interpreter/object"
+import (
+	"github.com/care0717/monkey-interpreter/object"
+)
 
 var builtins = map[string]*object.Builtin{
 	"len": {Fn: func(args ...object.Object) object.Object {

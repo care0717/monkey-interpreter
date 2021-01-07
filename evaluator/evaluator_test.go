@@ -357,6 +357,10 @@ if (10 > 1) {
 			input:    `"foo" - "bar"`,
 			expected: &object.Error{Message: "unknown operator: STRING - STRING"},
 		},
+		{
+			input:    `{"foo": "bar"}[fn(x) {x}];`,
+			expected: &object.Error{Message: "unusable as hash key: FUNCTION"},
+		},
 	}
 
 	if errors := testEval(tests); errors != nil {
@@ -614,6 +618,48 @@ let t = "two";
 					object.FALSE.HashKey():                     {Key: object.FALSE, Value: &object.Integer{Value: 6}},
 				},
 			},
+		},
+	}
+	if errors := testEval(tests); errors != nil {
+		for _, err := range errors {
+			t.Error(err)
+		}
+	}
+}
+func TestHashIndexExpressions(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected object.Object
+	}{
+		{
+			input: `
+{"foo": 5}["foo"]
+`,
+			expected: &object.Integer{Value: 5},
+		},
+		{
+			input: `
+{"foo": 5}["bar"]
+`,
+			expected: object.NULL,
+		},
+		{
+			input: `
+let key = "foo"; {"foo": 6}[key]
+`,
+			expected: &object.Integer{Value: 6},
+		},
+		{
+			input: `
+{}["bar"]
+`,
+			expected: object.NULL,
+		},
+		{
+			input: `
+{false: 1}[false]
+`,
+			expected: &object.Integer{Value: 1},
 		},
 	}
 	if errors := testEval(tests); errors != nil {

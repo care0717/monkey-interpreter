@@ -669,6 +669,67 @@ let key = "foo"; {"foo": 6}[key]
 	}
 }
 
+func TestQuote(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected object.Object
+	} {
+		{
+			input: `quote(5+8)`,
+			expected: &object.Quote{Node: ast.InfixExpression{
+				Token: token.Token{
+					Type:    token.PLUS,
+					Literal: "+",
+				},
+				Operator: "+",
+				Left: ast.IntegerLiteral{
+					Token: token.Token{
+						Type:    token.INT,
+						Literal: "5",
+					},
+					Value: 5,
+				},
+				Right: ast.IntegerLiteral{
+					Token: token.Token{
+						Type:    token.INT,
+						Literal: "8",
+					},
+					Value: 8,
+				},
+			}},
+		},
+		{
+			input: `quote(foo+bar)`,
+			expected: &object.Quote{Node: ast.InfixExpression{
+				Token: token.Token{
+					Type:    token.PLUS,
+					Literal: "+",
+				},
+				Operator: "+",
+				Left: ast.Identifier{
+					Token: token.Token{
+						Type:    token.IDENT,
+						Literal: "foo",
+					},
+					Value: "foo",
+				},
+				Right: ast.Identifier{
+					Token: token.Token{
+						Type:    token.IDENT,
+						Literal: "bar",
+					},
+					Value: "bar",
+				},
+			}},
+		},
+	}
+	if errors := testEval(tests); errors != nil {
+		for _, err := range errors {
+			t.Error(err)
+		}
+	}
+}
+
 func testEval(tests []struct {
 	input    string
 	expected object.Object

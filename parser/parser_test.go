@@ -41,14 +41,14 @@ let foobar = 838383;
 						Type:    token.LET,
 						Literal: "let",
 					},
-					Name: ast.Identifier{
+					Name: &ast.Identifier{
 						Token: token.Token{
 							Type:    token.IDENT,
 							Literal: "x",
 						},
 						Value: "x",
 					},
-					Value: ast.IntegerLiteral{
+					Value: &ast.IntegerLiteral{
 						Token: token.Token{
 							Type:    token.INT,
 							Literal: "5",
@@ -61,14 +61,14 @@ let foobar = 838383;
 						Type:    token.LET,
 						Literal: "let",
 					},
-					Name: ast.Identifier{
+					Name: &ast.Identifier{
 						Token: token.Token{
 							Type:    token.IDENT,
 							Literal: "y",
 						},
 						Value: "y",
 					},
-					Value: ast.IntegerLiteral{
+					Value: &ast.IntegerLiteral{
 						Token: token.Token{
 							Type:    token.INT,
 							Literal: "10",
@@ -81,14 +81,14 @@ let foobar = 838383;
 						Type:    token.LET,
 						Literal: "let",
 					},
-					Name: ast.Identifier{
+					Name: &ast.Identifier{
 						Token: token.Token{
 							Type:    token.IDENT,
 							Literal: "foobar",
 						},
 						Value: "foobar",
 					},
-					Value: ast.IntegerLiteral{
+					Value: &ast.IntegerLiteral{
 						Token: token.Token{
 							Type:    token.INT,
 							Literal: "838383",
@@ -154,7 +154,7 @@ return 838383;
 						Type:    token.RETURN,
 						Literal: "return",
 					},
-					ReturnValue: ast.IntegerLiteral{
+					ReturnValue: &ast.IntegerLiteral{
 						Token: token.Token{
 							Type:    token.INT,
 							Literal: "5",
@@ -167,7 +167,7 @@ return 838383;
 						Type:    token.RETURN,
 						Literal: "return",
 					},
-					ReturnValue: ast.IntegerLiteral{
+					ReturnValue: &ast.IntegerLiteral{
 						Token: token.Token{
 							Type:    token.INT,
 							Literal: "10",
@@ -180,7 +180,7 @@ return 838383;
 						Type:    token.RETURN,
 						Literal: "return",
 					},
-					ReturnValue: ast.IntegerLiteral{
+					ReturnValue: &ast.IntegerLiteral{
 						Token: token.Token{
 							Type:    token.INT,
 							Literal: "838383",
@@ -268,7 +268,7 @@ func TestIdentifierExpression(t *testing.T) {
 		{
 			input: "foobar;",
 			expected: []ast.Expression{
-				ast.Identifier{
+				&ast.Identifier{
 					Token: token.Token{
 						Type:    token.IDENT,
 						Literal: "foobar",
@@ -296,7 +296,7 @@ func TestIntegerLiteral(t *testing.T) {
 		{
 			input: "55;",
 			expected: []ast.Expression{
-				ast.IntegerLiteral{
+				&ast.IntegerLiteral{
 					Token: token.Token{
 						Type:    token.INT,
 						Literal: "55",
@@ -324,13 +324,13 @@ func TestParsingPrefixExpressions(t *testing.T) {
 		{
 			input: "!5;",
 			expected: []ast.Expression{
-				ast.PrefixExpression{
+				&ast.PrefixExpression{
 					Token: token.Token{
 						Type:    token.BANG,
 						Literal: "!",
 					},
 					Operator: "!",
-					Right: ast.IntegerLiteral{
+					Right: &ast.IntegerLiteral{
 						Token: token.Token{
 							Type:    token.INT,
 							Literal: "5",
@@ -343,13 +343,13 @@ func TestParsingPrefixExpressions(t *testing.T) {
 		{
 			input: "-15;",
 			expected: []ast.Expression{
-				ast.PrefixExpression{
+				&ast.PrefixExpression{
 					Token: token.Token{
 						Type:    token.MINUS,
 						Literal: "-",
 					},
 					Operator: "-",
-					Right: ast.IntegerLiteral{
+					Right: &ast.IntegerLiteral{
 						Token: token.Token{
 							Type:    token.INT,
 							Literal: "15",
@@ -383,20 +383,20 @@ func TestParsingInfixExpression(t *testing.T) {
 2 / 5;
 `,
 			expected: []ast.Expression{
-				ast.InfixExpression{
+				&ast.InfixExpression{
 					Token: token.Token{
 						Type:    token.PLUS,
 						Literal: "+",
 					},
 					Operator: "+",
-					Left: ast.IntegerLiteral{
+					Left: &ast.IntegerLiteral{
 						Token: token.Token{
 							Type:    token.INT,
 							Literal: "2",
 						},
 						Value: 2,
 					},
-					Right: ast.IntegerLiteral{
+					Right: &ast.IntegerLiteral{
 						Token: token.Token{
 							Type:    token.INT,
 							Literal: "5",
@@ -404,20 +404,20 @@ func TestParsingInfixExpression(t *testing.T) {
 						Value: 5,
 					},
 				},
-				ast.InfixExpression{
+				&ast.InfixExpression{
 					Token: token.Token{
 						Type:    token.MINUS,
 						Literal: "-",
 					},
 					Operator: "-",
-					Left: ast.IntegerLiteral{
+					Left: &ast.IntegerLiteral{
 						Token: token.Token{
 							Type:    token.INT,
 							Literal: "5",
 						},
 						Value: 5,
 					},
-					Right: ast.IntegerLiteral{
+					Right: &ast.IntegerLiteral{
 						Token: token.Token{
 							Type:    token.INT,
 							Literal: "2",
@@ -425,20 +425,20 @@ func TestParsingInfixExpression(t *testing.T) {
 						Value: 2,
 					},
 				},
-				ast.InfixExpression{
+				&ast.InfixExpression{
 					Token: token.Token{
 						Type:    token.ASTERISK,
 						Literal: "*",
 					},
 					Operator: "*",
-					Left: ast.IntegerLiteral{
+					Left: &ast.IntegerLiteral{
 						Token: token.Token{
 							Type:    token.INT,
 							Literal: "5",
 						},
 						Value: 5,
 					},
-					Right: ast.IntegerLiteral{
+					Right: &ast.IntegerLiteral{
 						Token: token.Token{
 							Type:    token.INT,
 							Literal: "2",
@@ -446,20 +446,20 @@ func TestParsingInfixExpression(t *testing.T) {
 						Value: 2,
 					},
 				},
-				ast.InfixExpression{
+				&ast.InfixExpression{
 					Token: token.Token{
 						Type:    token.SLASH,
 						Literal: "/",
 					},
 					Operator: "/",
-					Left: ast.IntegerLiteral{
+					Left: &ast.IntegerLiteral{
 						Token: token.Token{
 							Type:    token.INT,
 							Literal: "2",
 						},
 						Value: 2,
 					},
-					Right: ast.IntegerLiteral{
+					Right: &ast.IntegerLiteral{
 						Token: token.Token{
 							Type:    token.INT,
 							Literal: "5",
@@ -472,20 +472,20 @@ func TestParsingInfixExpression(t *testing.T) {
 		{
 			input: "5 > 2;5 < 2;",
 			expected: []ast.Expression{
-				ast.InfixExpression{
+				&ast.InfixExpression{
 					Token: token.Token{
 						Type:    token.GT,
 						Literal: ">",
 					},
 					Operator: ">",
-					Left: ast.IntegerLiteral{
+					Left: &ast.IntegerLiteral{
 						Token: token.Token{
 							Type:    token.INT,
 							Literal: "5",
 						},
 						Value: 5,
 					},
-					Right: ast.IntegerLiteral{
+					Right: &ast.IntegerLiteral{
 						Token: token.Token{
 							Type:    token.INT,
 							Literal: "2",
@@ -493,20 +493,20 @@ func TestParsingInfixExpression(t *testing.T) {
 						Value: 2,
 					},
 				},
-				ast.InfixExpression{
+				&ast.InfixExpression{
 					Token: token.Token{
 						Type:    token.LT,
 						Literal: "<",
 					},
 					Operator: "<",
-					Left: ast.IntegerLiteral{
+					Left: &ast.IntegerLiteral{
 						Token: token.Token{
 							Type:    token.INT,
 							Literal: "5",
 						},
 						Value: 5,
 					},
-					Right: ast.IntegerLiteral{
+					Right: &ast.IntegerLiteral{
 						Token: token.Token{
 							Type:    token.INT,
 							Literal: "2",
@@ -522,20 +522,20 @@ func TestParsingInfixExpression(t *testing.T) {
 5 != 2;
 `,
 			expected: []ast.Expression{
-				ast.InfixExpression{
+				&ast.InfixExpression{
 					Token: token.Token{
 						Type:    token.EQ,
 						Literal: "==",
 					},
 					Operator: "==",
-					Left: ast.IntegerLiteral{
+					Left: &ast.IntegerLiteral{
 						Token: token.Token{
 							Type:    token.INT,
 							Literal: "5",
 						},
 						Value: 5,
 					},
-					Right: ast.IntegerLiteral{
+					Right: &ast.IntegerLiteral{
 						Token: token.Token{
 							Type:    token.INT,
 							Literal: "2",
@@ -543,20 +543,20 @@ func TestParsingInfixExpression(t *testing.T) {
 						Value: 2,
 					},
 				},
-				ast.InfixExpression{
+				&ast.InfixExpression{
 					Token: token.Token{
 						Type:    token.NOT_EQ,
 						Literal: "!=",
 					},
 					Operator: "!=",
-					Left: ast.IntegerLiteral{
+					Left: &ast.IntegerLiteral{
 						Token: token.Token{
 							Type:    token.INT,
 							Literal: "5",
 						},
 						Value: 5,
 					},
-					Right: ast.IntegerLiteral{
+					Right: &ast.IntegerLiteral{
 						Token: token.Token{
 							Type:    token.INT,
 							Literal: "2",
@@ -573,20 +573,20 @@ true == false;
 false != false;
 `,
 			expected: []ast.Expression{
-				ast.InfixExpression{
+				&ast.InfixExpression{
 					Token: token.Token{
 						Type:    token.EQ,
 						Literal: "==",
 					},
 					Operator: "==",
-					Left: ast.Boolean{
+					Left: &ast.Boolean{
 						Token: token.Token{
 							Type:    token.TRUE,
 							Literal: "true",
 						},
 						Value: true,
 					},
-					Right: ast.Boolean{
+					Right: &ast.Boolean{
 						Token: token.Token{
 							Type:    token.TRUE,
 							Literal: "true",
@@ -594,20 +594,20 @@ false != false;
 						Value: true,
 					},
 				},
-				ast.InfixExpression{
+				&ast.InfixExpression{
 					Token: token.Token{
 						Type:    token.EQ,
 						Literal: "==",
 					},
 					Operator: "==",
-					Left: ast.Boolean{
+					Left: &ast.Boolean{
 						Token: token.Token{
 							Type:    token.TRUE,
 							Literal: "true",
 						},
 						Value: true,
 					},
-					Right: ast.Boolean{
+					Right: &ast.Boolean{
 						Token: token.Token{
 							Type:    token.FALSE,
 							Literal: "false",
@@ -615,20 +615,20 @@ false != false;
 						Value: false,
 					},
 				},
-				ast.InfixExpression{
+				&ast.InfixExpression{
 					Token: token.Token{
 						Type:    token.NOT_EQ,
 						Literal: "!=",
 					},
 					Operator: "!=",
-					Left: ast.Boolean{
+					Left: &ast.Boolean{
 						Token: token.Token{
 							Type:    token.FALSE,
 							Literal: "false",
 						},
 						Value: false,
 					},
-					Right: ast.Boolean{
+					Right: &ast.Boolean{
 						Token: token.Token{
 							Type:    token.FALSE,
 							Literal: "false",
@@ -786,25 +786,25 @@ func TestIfExpression(t *testing.T) {
 		{
 			input: `if (x < y) { x }`,
 			expected: []ast.Expression{
-				ast.IfExpression{
+				&ast.IfExpression{
 					Token: token.Token{
 						Type:    token.IF,
 						Literal: "if",
 					},
-					Condition: ast.InfixExpression{
+					Condition: &ast.InfixExpression{
 						Token: token.Token{
 							Type:    token.LT,
 							Literal: "<",
 						},
 						Operator: "<",
-						Left: ast.Identifier{
+						Left: &ast.Identifier{
 							Token: token.Token{
 								Type:    token.IDENT,
 								Literal: "x",
 							},
 							Value: "x",
 						},
-						Right: ast.Identifier{
+						Right: &ast.Identifier{
 							Token: token.Token{
 								Type:    token.IDENT,
 								Literal: "y",
@@ -821,7 +821,7 @@ func TestIfExpression(t *testing.T) {
 							&ast.ExpressionStatement{
 								Token: token.Token{Type: token.IDENT,
 									Literal: "x"},
-								Expression: ast.Identifier{
+								Expression: &ast.Identifier{
 									Token: token.Token{
 										Type:    token.IDENT,
 										Literal: "x",
@@ -838,25 +838,25 @@ func TestIfExpression(t *testing.T) {
 		{
 			input: `if (x > y) { y } else { x }`,
 			expected: []ast.Expression{
-				ast.IfExpression{
+				&ast.IfExpression{
 					Token: token.Token{
 						Type:    token.IF,
 						Literal: "if",
 					},
-					Condition: ast.InfixExpression{
+					Condition: &ast.InfixExpression{
 						Token: token.Token{
 							Type:    token.GT,
 							Literal: ">",
 						},
 						Operator: ">",
-						Left: ast.Identifier{
+						Left: &ast.Identifier{
 							Token: token.Token{
 								Type:    token.IDENT,
 								Literal: "x",
 							},
 							Value: "x",
 						},
-						Right: ast.Identifier{
+						Right: &ast.Identifier{
 							Token: token.Token{
 								Type:    token.IDENT,
 								Literal: "y",
@@ -873,7 +873,7 @@ func TestIfExpression(t *testing.T) {
 							&ast.ExpressionStatement{
 								Token: token.Token{Type: token.IDENT,
 									Literal: "y"},
-								Expression: ast.Identifier{
+								Expression: &ast.Identifier{
 									Token: token.Token{
 										Type:    token.IDENT,
 										Literal: "y",
@@ -892,7 +892,7 @@ func TestIfExpression(t *testing.T) {
 							&ast.ExpressionStatement{
 								Token: token.Token{Type: token.IDENT,
 									Literal: "x"},
-								Expression: ast.Identifier{
+								Expression: &ast.Identifier{
 									Token: token.Token{
 										Type:    token.IDENT,
 										Literal: "x",
@@ -925,12 +925,12 @@ func TestFunctionLiteralParsing(t *testing.T) {
 		{
 			input: `fn(x, y) { x + y; }`,
 			expected: []ast.Expression{
-				ast.FunctionLiteral{
+				&ast.FunctionLiteral{
 					Token: token.Token{
 						Type:    token.FUNCTION,
 						Literal: "fn",
 					},
-					Parameters: []ast.Identifier{
+					Parameters: []*ast.Identifier{
 						{
 							Token: token.Token{
 								Type:    token.IDENT,
@@ -957,20 +957,20 @@ func TestFunctionLiteralParsing(t *testing.T) {
 									Type:    token.IDENT,
 									Literal: "x",
 								},
-								Expression: ast.InfixExpression{
+								Expression: &ast.InfixExpression{
 									Token: token.Token{
 										Type:    token.PLUS,
 										Literal: "+",
 									},
 									Operator: "+",
-									Left: ast.Identifier{
+									Left: &ast.Identifier{
 										Token: token.Token{
 											Type:    token.IDENT,
 											Literal: "x",
 										},
 										Value: "x",
 									},
-									Right: ast.Identifier{
+									Right: &ast.Identifier{
 										Token: token.Token{
 											Type:    token.IDENT,
 											Literal: "y",
@@ -987,7 +987,7 @@ func TestFunctionLiteralParsing(t *testing.T) {
 		{
 			input: `fn() {}`,
 			expected: []ast.Expression{
-				ast.FunctionLiteral{
+				&ast.FunctionLiteral{
 					Token: token.Token{
 						Type:    token.FUNCTION,
 						Literal: "fn",
@@ -1006,12 +1006,12 @@ func TestFunctionLiteralParsing(t *testing.T) {
 		{
 			input: `fn(x) {}`,
 			expected: []ast.Expression{
-				ast.FunctionLiteral{
+				&ast.FunctionLiteral{
 					Token: token.Token{
 						Type:    token.FUNCTION,
 						Literal: "fn",
 					},
-					Parameters: []ast.Identifier{
+					Parameters: []*ast.Identifier{
 						{
 							Token: token.Token{
 								Type:    token.IDENT,
@@ -1048,12 +1048,12 @@ func TestCallExpressionParsing(t *testing.T) {
 		{
 			input: `add(1, 2 * 3, 4 + 5);`,
 			expected: []ast.Expression{
-				ast.CallExpression{
+				&ast.CallExpression{
 					Token: token.Token{
 						Type:    token.LPAREN,
 						Literal: "(",
 					},
-					Function: ast.Identifier{
+					Function: &ast.Identifier{
 						Token: token.Token{
 							Type:    token.IDENT,
 							Literal: "add",
@@ -1061,27 +1061,27 @@ func TestCallExpressionParsing(t *testing.T) {
 						Value: "add",
 					},
 					Arguments: []ast.Expression{
-						ast.IntegerLiteral{
+						&ast.IntegerLiteral{
 							Token: token.Token{
 								Type:    token.INT,
 								Literal: "1",
 							},
 							Value: 1,
 						},
-						ast.InfixExpression{
+						&ast.InfixExpression{
 							Token: token.Token{
 								Type:    token.ASTERISK,
 								Literal: "*",
 							},
 							Operator: "*",
-							Left: ast.IntegerLiteral{
+							Left: &ast.IntegerLiteral{
 								Token: token.Token{
 									Type:    token.INT,
 									Literal: "2",
 								},
 								Value: 2,
 							},
-							Right: ast.IntegerLiteral{
+							Right: &ast.IntegerLiteral{
 								Token: token.Token{
 									Type:    token.INT,
 									Literal: "3",
@@ -1089,20 +1089,20 @@ func TestCallExpressionParsing(t *testing.T) {
 								Value: 3,
 							},
 						},
-						ast.InfixExpression{
+						&ast.InfixExpression{
 							Token: token.Token{
 								Type:    token.PLUS,
 								Literal: "+",
 							},
 							Operator: "+",
-							Left: ast.IntegerLiteral{
+							Left: &ast.IntegerLiteral{
 								Token: token.Token{
 									Type:    token.INT,
 									Literal: "4",
 								},
 								Value: 4,
 							},
-							Right: ast.IntegerLiteral{
+							Right: &ast.IntegerLiteral{
 								Token: token.Token{
 									Type:    token.INT,
 									Literal: "5",
@@ -1132,7 +1132,7 @@ func TestStringLiteralExpression(t *testing.T) {
 		{
 			input: `"hello world"`,
 			expected: []ast.Expression{
-				ast.StringLiteral{
+				&ast.StringLiteral{
 					Token: token.Token{
 						Type:    token.STRING,
 						Literal: "hello world",
@@ -1159,33 +1159,33 @@ func TestParsingArrayLiterals(t *testing.T) {
 		{
 			input: `[1, 2 * 3, "foo"]`,
 			expected: []ast.Expression{
-				ast.ArrayLiteral{
+				&ast.ArrayLiteral{
 					Token: token.Token{
 						Type:    token.LBRACKET,
 						Literal: "[",
 					},
 					Elements: []ast.Expression{
-						ast.IntegerLiteral{
+						&ast.IntegerLiteral{
 							Token: token.Token{
 								Type:    token.INT,
 								Literal: "1",
 							},
 							Value: 1,
 						},
-						ast.InfixExpression{
+						&ast.InfixExpression{
 							Token: token.Token{
 								Type:    token.ASTERISK,
 								Literal: "*",
 							},
 							Operator: "*",
-							Left: ast.IntegerLiteral{
+							Left: &ast.IntegerLiteral{
 								Token: token.Token{
 									Type:    token.INT,
 									Literal: "2",
 								},
 								Value: 2,
 							},
-							Right: ast.IntegerLiteral{
+							Right: &ast.IntegerLiteral{
 								Token: token.Token{
 									Type:    token.INT,
 									Literal: "3",
@@ -1193,7 +1193,7 @@ func TestParsingArrayLiterals(t *testing.T) {
 								Value: 3,
 							},
 						},
-						ast.StringLiteral{
+						&ast.StringLiteral{
 							Token: token.Token{
 								Type:    token.STRING,
 								Literal: "foo",
@@ -1222,32 +1222,32 @@ func TestParsingIndexExpression(t *testing.T) {
 		{
 			input: "myArray[1+2]",
 			expected: []ast.Expression{
-				ast.IndexExpression{
+				&ast.IndexExpression{
 					Token: token.Token{
 						Type:    token.LBRACKET,
 						Literal: "[",
 					},
-					Left: ast.Identifier{
+					Left: &ast.Identifier{
 						Token: token.Token{
 							Type:    token.IDENT,
 							Literal: "myArray",
 						},
 						Value: "myArray",
 					},
-					Index: ast.InfixExpression{
+					Index: &ast.InfixExpression{
 						Token: token.Token{
 							Type:    token.PLUS,
 							Literal: "+",
 						},
 						Operator: "+",
-						Left: ast.IntegerLiteral{
+						Left: &ast.IntegerLiteral{
 							Token: token.Token{
 								Type:    token.INT,
 								Literal: "1",
 							},
 							Value: 1,
 						},
-						Right: ast.IntegerLiteral{
+						Right: &ast.IntegerLiteral{
 							Token: token.Token{
 								Type:    token.INT,
 								Literal: "2",
@@ -1280,73 +1280,21 @@ func TestParsingHashLiterals(t *testing.T) {
 {true: 0 + 1, 5 + 2: 10};
 `,
 			expected: []ast.Expression{
-				ast.HashLiteral{
+				&ast.HashLiteral{
 					Token: token.Token{
 						Type:    token.LBRACE,
 						Literal: "{",
 					},
-					Pairs: map[ast.Expression]ast.Expression{
-						ast.StringLiteral{
-							Token: token.Token{
-								Type:    token.STRING,
-								Literal: "one",
-							},
-							Value: "one",
-						}: ast.IntegerLiteral{
-							Token: token.Token{
-								Type:    token.INT,
-								Literal: "1",
-							},
-							Value: 1,
-						},
-						ast.StringLiteral{
-							Token: token.Token{
-								Type:    token.STRING,
-								Literal: "two",
-							},
-							Value: "two",
-						}: ast.IntegerLiteral{
-							Token: token.Token{
-								Type:    token.INT,
-								Literal: "2",
-							},
-							Value: 2,
-						},
-					},
-				},
-				ast.HashLiteral{
-					Token: token.Token{
-						Type:    token.LBRACE,
-						Literal: "{",
-					},
-					Pairs: map[ast.Expression]ast.Expression{},
-				},
-				ast.HashLiteral{
-					Token: token.Token{
-						Type:    token.LBRACE,
-						Literal: "{",
-					},
-					Pairs: map[ast.Expression]ast.Expression{
-						ast.Boolean{
-							Token: token.Token{
-								Type:    token.TRUE,
-								Literal: "true",
-							},
-							Value: true,
-						}: ast.InfixExpression{
-							Token: token.Token{
-								Type:    token.PLUS,
-								Literal: "+",
-							},
-							Operator: "+",
-							Left: ast.IntegerLiteral{
+					Pairs: []ast.HashPair{
+						{
+							&ast.StringLiteral{
 								Token: token.Token{
-									Type:    token.INT,
-									Literal: "0",
+									Type:    token.STRING,
+									Literal: "one",
 								},
-								Value: 0,
+								Value: "one",
 							},
-							Right: ast.IntegerLiteral{
+							&ast.IntegerLiteral{
 								Token: token.Token{
 									Type:    token.INT,
 									Literal: "1",
@@ -1354,32 +1302,96 @@ func TestParsingHashLiterals(t *testing.T) {
 								Value: 1,
 							},
 						},
-						ast.InfixExpression{
-							Token: token.Token{
-								Type:    token.PLUS,
-								Literal: "+",
-							},
-							Operator: "+",
-							Left: ast.IntegerLiteral{
+						{
+							&ast.StringLiteral{
 								Token: token.Token{
-									Type:    token.INT,
-									Literal: "5",
+									Type:    token.STRING,
+									Literal: "two",
 								},
-								Value: 5,
+								Value: "two",
 							},
-							Right: ast.IntegerLiteral{
+							&ast.IntegerLiteral{
 								Token: token.Token{
 									Type:    token.INT,
 									Literal: "2",
 								},
 								Value: 2,
 							},
-						}: ast.IntegerLiteral{
-							Token: token.Token{
-								Type:    token.INT,
-								Literal: "10",
+						},
+					},
+				},
+				&ast.HashLiteral{
+					Token: token.Token{
+						Type:    token.LBRACE,
+						Literal: "{",
+					},
+					Pairs: nil,
+				},
+				&ast.HashLiteral{
+					Token: token.Token{
+						Type:    token.LBRACE,
+						Literal: "{",
+					},
+					Pairs:[]ast.HashPair{
+						{
+							&ast.Boolean{
+								Token: token.Token{
+									Type:    token.TRUE,
+									Literal: "true",
+								},
+								Value: true,
 							},
-							Value: 10,
+							&ast.InfixExpression{
+								Token: token.Token{
+									Type:    token.PLUS,
+									Literal: "+",
+								},
+								Operator: "+",
+								Left: &ast.IntegerLiteral{
+									Token: token.Token{
+										Type:    token.INT,
+										Literal: "0",
+									},
+									Value: 0,
+								},
+								Right: &ast.IntegerLiteral{
+									Token: token.Token{
+										Type:    token.INT,
+										Literal: "1",
+									},
+									Value: 1,
+								},
+							},
+						},
+						{
+							&ast.InfixExpression{
+								Token: token.Token{
+									Type:    token.PLUS,
+									Literal: "+",
+								},
+								Operator: "+",
+								Left: &ast.IntegerLiteral{
+									Token: token.Token{
+										Type:    token.INT,
+										Literal: "5",
+									},
+									Value: 5,
+								},
+								Right: &ast.IntegerLiteral{
+									Token: token.Token{
+										Type:    token.INT,
+										Literal: "2",
+									},
+									Value: 2,
+								},
+							},
+							&ast.IntegerLiteral{
+								Token: token.Token{
+									Type:    token.INT,
+									Literal: "10",
+								},
+								Value: 10,
+							},
 						},
 					},
 				},

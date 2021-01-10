@@ -19,19 +19,19 @@ func Eval(node ast.Node, env object.Environment) object.Object {
 		return evalProgram(node, env)
 	case *ast.ExpressionStatement:
 		return Eval(node.Expression, env)
-	case ast.IntegerLiteral:
+	case *ast.IntegerLiteral:
 		return &object.Integer{Value: node.Value}
-	case ast.Boolean:
+	case *ast.Boolean:
 		return nativeBoolToBooleanObject(node.Value)
-	case ast.StringLiteral:
+	case *ast.StringLiteral:
 		return &object.String{Value: node.Value}
-	case ast.PrefixExpression:
+	case *ast.PrefixExpression:
 		right := Eval(node.Right, env)
 		if isError(right) {
 			return right
 		}
 		return evalPrefixExpression(node.Operator, right)
-	case ast.InfixExpression:
+	case *ast.InfixExpression:
 		left := Eval(node.Left, env)
 		if isError(left) {
 			return left
@@ -43,7 +43,7 @@ func Eval(node ast.Node, env object.Environment) object.Object {
 		return evalInfixExpression(node.Operator, left, right)
 	case *ast.BlockStatement:
 		return evalBlockStatement(node, env)
-	case ast.IfExpression:
+	case *ast.IfExpression:
 		return evalIfExpression(node, env)
 	case *ast.ReturnStatement:
 		val := Eval(node.ReturnValue, env)
@@ -57,13 +57,13 @@ func Eval(node ast.Node, env object.Environment) object.Object {
 			return val
 		}
 		env.Set(node.Name.Value, val)
-	case ast.Identifier:
+	case *ast.Identifier:
 		return evalIdentifier(node, env)
-	case ast.FunctionLiteral:
+	case *ast.FunctionLiteral:
 		params := node.Parameters
 		body := node.Body
 		return &object.Function{Parameters: params, Body: body, Env: env}
-	case ast.CallExpression:
+	case *ast.CallExpression:
 		if node.Function.TokenLiteral() == "quote" {
 			return quote(node.Arguments[0])
 		}
@@ -76,13 +76,13 @@ func Eval(node ast.Node, env object.Environment) object.Object {
 			return args[0]
 		}
 		return applyFunction(function, args)
-	case ast.ArrayLiteral:
+	case *ast.ArrayLiteral:
 		elements := evalExpressions(node.Elements, env)
 		if len(elements) == 1 && isError(elements[0]) {
 			return elements[0]
 		}
 		return &object.Array{Elements: elements}
-	case ast.IndexExpression:
+	case *ast.IndexExpression:
 		left := Eval(node.Left, env)
 		if isError(left) {
 			return left
@@ -93,17 +93,17 @@ func Eval(node ast.Node, env object.Environment) object.Object {
 			return index
 		}
 		return evalIndexExpression(left, index)
-	case ast.HashLiteral:
+	case *ast.HashLiteral:
 		return evalHashLiteral(node, env)
 	}
 	return nil
 }
 
-func evalHashLiteral(node ast.HashLiteral, env object.Environment) object.Object {
+func evalHashLiteral(node *ast.HashLiteral, env object.Environment) object.Object {
 	pairs := make(map[object.HashKey]object.HashPair)
 
-	for keyNode, valueNode := range node.Pairs {
-		key := Eval(keyNode, env)
+	for _, pair := range node.Pairs {
+		key := Eval(pair.Key, env)
 		if isError(key) {
 			return key
 		}
@@ -113,7 +113,7 @@ func evalHashLiteral(node ast.HashLiteral, env object.Environment) object.Object
 			return newError("unusable as hash key: %s", key.Type())
 		}
 
-		value := Eval(valueNode, env)
+		value := Eval(pair.Value, env)
 		if isError(value) {
 			return value
 		}
@@ -209,7 +209,7 @@ func evalExpressions(expressions []ast.Expression, env object.Environment) []obj
 	return result
 }
 
-func evalIdentifier(node ast.Identifier, env object.Environment) object.Object {
+func evalIdentifier(node *ast.Identifier, env object.Environment) object.Object {
 	if val, ok := env.Get(node.Value); ok {
 		return val
 	}
@@ -221,7 +221,7 @@ func evalIdentifier(node ast.Identifier, env object.Environment) object.Object {
 	return newError("identifier not found: " + node.Value)
 }
 
-func evalIfExpression(ie ast.IfExpression, env object.Environment) object.Object {
+func evalIfExpression(ie *ast.IfExpression, env object.Environment) object.Object {
 	condition := Eval(ie.Condition, env)
 	if isError(condition) {
 		return condition

@@ -407,7 +407,7 @@ func TestFunctionObject(t *testing.T) {
 		{
 			input: "fn(x) { x + 2; };",
 			expected: &object.Function{
-				Parameters: []ast.Identifier{
+				Parameters: []*ast.Identifier{
 					{
 						Token: token.Token{
 							Type:    token.IDENT,
@@ -427,20 +427,20 @@ func TestFunctionObject(t *testing.T) {
 								Type:    token.IDENT,
 								Literal: "x",
 							},
-							Expression: ast.InfixExpression{
+							Expression: &ast.InfixExpression{
 								Token: token.Token{
 									Type:    token.PLUS,
 									Literal: "+",
 								},
 								Operator: "+",
-								Left: ast.Identifier{
+								Left: &ast.Identifier{
 									Token: token.Token{
 										Type:    token.IDENT,
 										Literal: "x",
 									},
 									Value: "x",
 								},
-								Right: ast.IntegerLiteral{
+								Right: &ast.IntegerLiteral{
 									Token: token.Token{
 										Type:    token.INT,
 										Literal: "2",
@@ -676,20 +676,20 @@ func TestQuote(t *testing.T) {
 	} {
 		{
 			input: `quote(5+8)`,
-			expected: &object.Quote{Node: ast.InfixExpression{
+			expected: &object.Quote{Node: &ast.InfixExpression{
 				Token: token.Token{
 					Type:    token.PLUS,
 					Literal: "+",
 				},
 				Operator: "+",
-				Left: ast.IntegerLiteral{
+				Left: &ast.IntegerLiteral{
 					Token: token.Token{
 						Type:    token.INT,
 						Literal: "5",
 					},
 					Value: 5,
 				},
-				Right: ast.IntegerLiteral{
+				Right: &ast.IntegerLiteral{
 					Token: token.Token{
 						Type:    token.INT,
 						Literal: "8",
@@ -700,20 +700,20 @@ func TestQuote(t *testing.T) {
 		},
 		{
 			input: `quote(foo+bar)`,
-			expected: &object.Quote{Node: ast.InfixExpression{
+			expected: &object.Quote{Node: &ast.InfixExpression{
 				Token: token.Token{
 					Type:    token.PLUS,
 					Literal: "+",
 				},
 				Operator: "+",
-				Left: ast.Identifier{
+				Left: &ast.Identifier{
 					Token: token.Token{
 						Type:    token.IDENT,
 						Literal: "foo",
 					},
 					Value: "foo",
 				},
-				Right: ast.Identifier{
+				Right: &ast.Identifier{
 					Token: token.Token{
 						Type:    token.IDENT,
 						Literal: "bar",

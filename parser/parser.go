@@ -124,7 +124,7 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 		return nil
 	}
 
-	stmt.Name = ast.Identifier{
+	stmt.Name = &ast.Identifier{
 		Token: p.curToken,
 		Value: p.curToken.Literal,
 	}
@@ -200,7 +200,7 @@ func (p *Parser) parseExpression(precedence precedence) ast.Expression {
 }
 
 func (p *Parser) parseIfExpression() ast.Expression {
-	expression := ast.IfExpression{Token: p.curToken}
+	expression := &ast.IfExpression{Token: p.curToken}
 
 	if !p.mustExpectPeek(token.LPAREN) {
 		return nil
@@ -233,7 +233,7 @@ func (p *Parser) parseIfExpression() ast.Expression {
 }
 
 func (p *Parser) parseFunctionLiteral() ast.Expression {
-	lit := ast.FunctionLiteral{Token: p.curToken}
+	lit := &ast.FunctionLiteral{Token: p.curToken}
 
 	if !p.mustExpectPeek(token.LPAREN) {
 		return nil
@@ -249,8 +249,8 @@ func (p *Parser) parseFunctionLiteral() ast.Expression {
 	return lit
 }
 
-func (p *Parser) parseFunctionParameters() []ast.Identifier {
-	var identifiers []ast.Identifier
+func (p *Parser) parseFunctionParameters() []*ast.Identifier {
+	var identifiers []*ast.Identifier
 
 	// 引数なしの場合空のIdentifier
 	if p.peekTokenIs(token.RPAREN) {
@@ -260,7 +260,7 @@ func (p *Parser) parseFunctionParameters() []ast.Identifier {
 
 	p.nextToken()
 
-	ident := ast.Identifier{
+	ident := &ast.Identifier{
 		Token: p.curToken,
 		Value: p.curToken.Literal,
 	}
@@ -269,7 +269,7 @@ func (p *Parser) parseFunctionParameters() []ast.Identifier {
 	for p.peekTokenIs(token.COMMA) {
 		p.nextToken()
 		p.nextToken()
-		ident := ast.Identifier{
+		ident := &ast.Identifier{
 			Token: p.curToken,
 			Value: p.curToken.Literal,
 		}
@@ -302,7 +302,7 @@ func (p *Parser) parseBlockStatement() *ast.BlockStatement {
 }
 
 func (p *Parser) parseCallExpression(function ast.Expression) ast.Expression {
-	exp := ast.CallExpression{
+	exp := &ast.CallExpression{
 		Token:    p.curToken,
 		Function: function,
 	}
@@ -312,14 +312,14 @@ func (p *Parser) parseCallExpression(function ast.Expression) ast.Expression {
 }
 
 func (p *Parser) parseIdentifier() ast.Expression {
-	return ast.Identifier{
+	return &ast.Identifier{
 		Token: p.curToken,
 		Value: p.curToken.Literal,
 	}
 }
 
 func (p *Parser) parseBoolean() ast.Expression {
-	return ast.Boolean{
+	return &ast.Boolean{
 		Token: p.curToken,
 		Value: p.curTokenIs(token.TRUE),
 	}
@@ -328,7 +328,7 @@ func (p *Parser) parseBoolean() ast.Expression {
 func (p *Parser) parseIntegerLiteral() ast.Expression {
 	//defer untrace(trace("parseIntegerLiteral"))
 
-	lit := ast.IntegerLiteral{Token: p.curToken}
+	lit := &ast.IntegerLiteral{Token: p.curToken}
 
 	value, err := strconv.ParseInt(p.curToken.Literal, 0, 64)
 	if err != nil {
@@ -342,13 +342,13 @@ func (p *Parser) parseIntegerLiteral() ast.Expression {
 }
 
 func (p *Parser) parseStringLiteral() ast.Expression {
-	return ast.StringLiteral{Token: p.curToken, Value: p.curToken.Literal}
+	return &ast.StringLiteral{Token: p.curToken, Value: p.curToken.Literal}
 }
 
 func (p *Parser) parsePrefixExpression() ast.Expression {
 	//defer untrace(trace("parsePrefixExpression"))
 
-	expression := ast.PrefixExpression{
+	expression := &ast.PrefixExpression{
 		Token:    p.curToken,
 		Operator: p.curToken.Literal,
 	}
@@ -369,7 +369,7 @@ func (p *Parser) parseGroupedExpression() ast.Expression {
 }
 
 func (p *Parser) parseArrayLiteral() ast.Expression {
-	array := ast.ArrayLiteral{
+	array := &ast.ArrayLiteral{
 		Token: p.curToken,
 	}
 
@@ -379,10 +379,9 @@ func (p *Parser) parseArrayLiteral() ast.Expression {
 }
 
 func (p *Parser) parseHashLiteral() ast.Expression {
-	hash := ast.HashLiteral{
+	hash := &ast.HashLiteral{
 		Token: p.curToken,
 	}
-	hash.Pairs = make(map[ast.Expression]ast.Expression)
 
 	for !p.peekTokenIs(token.RBRACE) {
 		p.nextToken()
@@ -395,7 +394,7 @@ func (p *Parser) parseHashLiteral() ast.Expression {
 		p.nextToken()
 		value := p.parseExpression(LOWEST)
 
-		hash.Pairs[key] = value
+		hash.Pairs = append(hash.Pairs, ast.HashPair{Key:   key, Value: value})
 
 		if !p.peekTokenIs(token.RBRACE) && !p.mustExpectPeek(token.COMMA) {
 			return nil
@@ -433,7 +432,7 @@ func (p *Parser) parseExpressionList(end token.Type) []ast.Expression {
 }
 
 func (p *Parser) parseIndexExpression(left ast.Expression) ast.Expression {
-	exp := ast.IndexExpression{
+	exp := &ast.IndexExpression{
 		Token: p.curToken,
 		Left:  left,
 	}
@@ -450,7 +449,7 @@ func (p *Parser) parseIndexExpression(left ast.Expression) ast.Expression {
 func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
 	//defer untrace(trace("parseInfixExpression"))
 
-	expression := ast.InfixExpression{
+	expression := &ast.InfixExpression{
 		Token:    p.curToken,
 		Operator: p.curToken.Literal,
 		Left:     left,

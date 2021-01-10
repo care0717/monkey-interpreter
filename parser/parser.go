@@ -394,7 +394,7 @@ func (p *Parser) parseHashLiteral() ast.Expression {
 		p.nextToken()
 		value := p.parseExpression(LOWEST)
 
-		hash.Pairs = append(hash.Pairs, ast.HashPair{Key:   key, Value: value})
+		hash.Pairs = append(hash.Pairs, ast.HashPair{Key: key, Value: value})
 
 		if !p.peekTokenIs(token.RBRACE) && !p.mustExpectPeek(token.COMMA) {
 			return nil

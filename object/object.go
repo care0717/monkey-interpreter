@@ -21,7 +21,7 @@ const (
 	BUILTIN_OBJ      = "BUILTIN"
 	ARRAY_OBJ        = "ARRAY"
 	HASH_OBJ         = "HASH"
-	QUOTE_OBJ         = "QUOTE"
+	QUOTE_OBJ        = "QUOTE"
 )
 
 var (
@@ -188,7 +188,7 @@ type Quote struct {
 	Node ast.Node
 }
 
-func (q *Quote) Type() Type {return QUOTE_OBJ}
+func (q *Quote) Type() Type { return QUOTE_OBJ }
 func (q *Quote) Inspect() string {
 	return "QUOTE(" + q.Node.String() + ")"
 }

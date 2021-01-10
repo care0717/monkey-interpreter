@@ -1332,7 +1332,7 @@ func TestParsingHashLiterals(t *testing.T) {
 						Type:    token.LBRACE,
 						Literal: "{",
 					},
-					Pairs:[]ast.HashPair{
+					Pairs: []ast.HashPair{
 						{
 							&ast.Boolean{
 								Token: token.Token{

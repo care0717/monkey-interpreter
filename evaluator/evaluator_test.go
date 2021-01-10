@@ -673,7 +673,7 @@ func TestQuote(t *testing.T) {
 	tests := []struct {
 		input    string
 		expected object.Object
-	} {
+	}{
 		{
 			input: `quote(5+8)`,
 			expected: &object.Quote{Node: &ast.InfixExpression{
@@ -720,6 +720,54 @@ func TestQuote(t *testing.T) {
 					},
 					Value: "bar",
 				},
+			}},
+		},
+		{
+			input: `quote(5+unquote(4+4))`,
+			expected: &object.Quote{Node: &ast.InfixExpression{
+				Token: token.Token{
+					Type:    token.PLUS,
+					Literal: "+",
+				},
+				Operator: "+",
+				Left: &ast.IntegerLiteral{
+					Token: token.Token{
+						Type:    token.INT,
+						Literal: "5",
+					},
+					Value: 5,
+				},
+				Right: &ast.IntegerLiteral{
+					Token: token.Token{
+						Type:    token.INT,
+						Literal: "8",
+					},
+					Value: 8,
+				},
+			}},
+		},
+		{
+			input: `
+let foo = 1;
+quote(foo)`,
+			expected: &object.Quote{Node: &ast.Identifier{
+				Token: token.Token{
+					Type:    token.IDENT,
+					Literal: "foo",
+				},
+				Value: "foo",
+			}},
+		},
+		{
+			input: `
+let foo = 1;
+quote(unquote(foo))`,
+			expected: &object.Quote{Node: &ast.IntegerLiteral{
+				Token: token.Token{
+					Type:    token.INT,
+					Literal: "1",
+				},
+				Value: 1,
 			}},
 		},
 	}

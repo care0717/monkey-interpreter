@@ -326,7 +326,7 @@ func (hl *HashLiteral) String() string {
 
 	var pairs []string
 	for _, pair := range hl.Pairs {
-		pairs = append(pairs, pair.Key.String()+":"+ pair.Value.String())
+		pairs = append(pairs, pair.Key.String()+":"+pair.Value.String())
 	}
 	out.WriteString("{")
 	out.WriteString(strings.Join(pairs, ", "))

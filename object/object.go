@@ -25,9 +25,9 @@ const (
 )
 
 var (
-	NULL  = &null{}
-	TRUE  = &boolean{Value: true}
-	FALSE = &boolean{Value: false}
+	NULL          = &null{}
+	TRUE  Boolean = &boolean{BoolValue: true}
+	FALSE Boolean = &boolean{BoolValue: false}
 )
 
 type Object interface {
@@ -42,12 +42,20 @@ type Integer struct {
 func (i *Integer) Type() Type      { return INTEGER_OBJ }
 func (i *Integer) Inspect() string { return fmt.Sprintf("%d", i.Value) }
 
-type boolean struct {
-	Value bool
+type Boolean interface {
+	Value() bool
+	Type() Type
+	Inspect() string
+	HashKey() HashKey
 }
 
+type boolean struct {
+	BoolValue bool
+}
+
+func (b *boolean) Value() bool     { return b.BoolValue }
 func (b *boolean) Type() Type      { return BOOLEAN_OBJ }
-func (b *boolean) Inspect() string { return fmt.Sprintf("%t", b.Value) }
+func (b *boolean) Inspect() string { return fmt.Sprintf("%t", b.BoolValue) }
 
 type String struct {
 	Value string
@@ -135,7 +143,7 @@ type HashKey struct {
 
 func (b *boolean) HashKey() HashKey {
 	var value uint64
-	if b.Value {
+	if b.BoolValue {
 		value = 1
 	} else {
 		value = 0

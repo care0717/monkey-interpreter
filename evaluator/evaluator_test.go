@@ -770,6 +770,28 @@ quote(unquote(foo))`,
 				Value: 1,
 			}},
 		},
+		{
+			input: `
+quote(unquote(true))`,
+			expected: &object.Quote{Node: &ast.Boolean{
+				Token: token.Token{
+					Type:    token.TRUE,
+					Literal: "true",
+				},
+				Value: true,
+			}},
+		},
+		{
+			input: `
+quote(unquote(true == false))`,
+			expected: &object.Quote{Node: &ast.Boolean{
+				Token: token.Token{
+					Type:    token.FALSE,
+					Literal: "false",
+				},
+				Value: false,
+			}},
+		},
 	}
 	if errors := testEval(tests); errors != nil {
 		for _, err := range errors {

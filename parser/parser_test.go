@@ -1406,3 +1406,80 @@ func TestParsingHashLiterals(t *testing.T) {
 		}
 	}
 }
+
+func TestMacroLiteralParsing(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected []ast.Expression
+	}{
+		{
+			input: `macro(x, y) { x + y; }`,
+			expected: []ast.Expression{
+				&ast.MacroLiteral{
+					Token: token.Token{
+						Type:    token.MACRO,
+						Literal: "macro",
+					},
+					Parameters: []*ast.Identifier{
+						{
+							Token: token.Token{
+								Type:    token.IDENT,
+								Literal: "x",
+							},
+							Value: "x",
+						},
+						{
+							Token: token.Token{
+								Type:    token.IDENT,
+								Literal: "y",
+							},
+							Value: "y",
+						},
+					},
+					Body: &ast.BlockStatement{
+						Token: token.Token{
+							Type:    token.LBRACE,
+							Literal: "{",
+						},
+						Statements: []ast.Statement{
+							&ast.ExpressionStatement{
+								Token: token.Token{
+									Type:    token.IDENT,
+									Literal: "x",
+								},
+								Expression: &ast.InfixExpression{
+									Token: token.Token{
+										Type:    token.PLUS,
+										Literal: "+",
+									},
+									Operator: "+",
+									Left: &ast.Identifier{
+										Token: token.Token{
+											Type:    token.IDENT,
+											Literal: "x",
+										},
+										Value: "x",
+									},
+									Right: &ast.Identifier{
+										Token: token.Token{
+											Type:    token.IDENT,
+											Literal: "y",
+										},
+										Value: "y",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		l := lexer.New(tt.input)
+		p := New(l)
+		if err := testExpressionProgram(p, tt.expected); err != nil {
+			t.Error(err)
+		}
+	}
+}

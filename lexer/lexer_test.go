@@ -184,6 +184,25 @@ let result = add(five, ten);
 				{Type: token.EOF, Literal: ""},
 			},
 		},
+		{
+			input: `macro(x, y) { x + y; };`,
+			expected: []token.Token{
+				{Type: token.MACRO, Literal: "macro"},
+				{Type: token.LPAREN, Literal: "("},
+				{Type: token.IDENT, Literal: "x"},
+				{Type: token.COMMA, Literal: ","},
+				{Type: token.IDENT, Literal: "y"},
+				{Type: token.RPAREN, Literal: ")"},
+				{Type: token.LBRACE, Literal: "{"},
+				{Type: token.IDENT, Literal: "x"},
+				{Type: token.PLUS, Literal: "+"},
+				{Type: token.IDENT, Literal: "y"},
+				{Type: token.SEMICOLON, Literal: ";"},
+				{Type: token.RBRACE, Literal: "}"},
+				{Type: token.SEMICOLON, Literal: ";"},
+				{Type: token.EOF, Literal: ""},
+			},
+		},
 	}
 
 	for _, tt := range tests {

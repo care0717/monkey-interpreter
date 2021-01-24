@@ -173,10 +173,7 @@ let mymacro = macro(x, y) { x + y; };`,
 		},
 	}
 	for _, tt := range tests {
-		l := lexer.New(tt.input)
-		p := parser.New(l)
-
-		program := p.ParseProgram()
+		program := testParseProgram(tt.input)
 		env := object.NewEnvironment()
 		DefineMacros(program, env)
 		if !cmp.Equal(program, tt.expectedProgram) {
@@ -199,4 +196,45 @@ let mymacro = macro(x, y) { x + y; };`,
 			t.Errorf("%T diff %s[-got, +expected]", tt.expectedMacro.Body, cmp.Diff(macro.Body, tt.expectedMacro.Body))
 		}
 	}
+}
+
+func TestExpandMacros(t *testing.T) {
+	tests := []struct{
+		input string
+		expected object.Object
+	}{
+		{
+			input:    `
+let infixExpression = macro() { quote(1 + 2); };
+infixExpression();
+`,
+			expected: &object.Integer{Value: 3},
+		},
+		{
+			input:    `
+let reverse = macro(a, b) { quote(unquote(b) - unquote(a)); };
+reverse(2+2, 10-5)`,
+			expected: &object.Integer{Value: 1},
+		},
+	}
+
+	for _, tt := range tests {
+
+
+		program := testParseProgram(tt.input)
+		env := object.NewEnvironment()
+		DefineMacros(program, env)
+		expanded := ExpandMacros(program, env)
+		got := Eval(expanded, env)
+
+		if !cmp.Equal(got, tt.expected) {
+			t.Errorf("%T diff %s[-got, +expected]", tt.expected, cmp.Diff(expanded, tt.expected))
+		}
+	}
+}
+
+func testParseProgram(input string) *ast.Program {
+	l := lexer.New(input)
+	p := parser.New(l)
+	return p.ParseProgram()
 }
